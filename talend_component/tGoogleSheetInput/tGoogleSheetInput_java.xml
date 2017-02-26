@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<COMPONENT> 
+  <HEADER PLATEFORM="ALL" SERIAL="" VERSION="1.0" STATUS="PROD" COMPATIBILITY="ALL" AUTHOR="cimt AG" RELEASE_DATE="20170226" STARTABLE="true" HAS_CONDITIONAL_OUTPUTS="false"> 
+    <SIGNATURE/> 
+  </HEADER>  
+  <FAMILIES> 
+    <FAMILY>Cloud/Google</FAMILY> 
+  </FAMILIES>  
+  <DOCUMENTATION> 
+    <URL/> 
+  </DOCUMENTATION>  
+  <CONNECTORS> 
+    <CONNECTOR CTYPE="FLOW" MAX_INPUT="0" MAX_OUTPUT="1"/>  
+    <CONNECTOR CTYPE="ITERATE" MAX_OUTPUT="1" MAX_INPUT="1"/>  
+    <CONNECTOR CTYPE="SUBJOB_OK" MAX_INPUT="1"/>  
+    <CONNECTOR CTYPE="SUBJOB_ERROR" MAX_INPUT="1"/>  
+    <CONNECTOR CTYPE="COMPONENT_OK"/>  
+    <CONNECTOR CTYPE="COMPONENT_ERROR"/>  
+    <CONNECTOR CTYPE="RUN_IF"/> 
+  </CONNECTORS>  
+  <PARAMETERS> 
+    <PARAMETER FIELD="CLOSED_LIST" NAME="AUTHENTICATION_METHOD" NUM_ROW="10" REQUIRED="true" GROUP="CLIENT"> 
+      <ITEMS DEFAULT="SERVICE_ACCOUNT"> 
+        <ITEM NAME="SERVICE_ACCOUNT" VALUE="SERVICE_ACCOUNT"/>  
+        <ITEM NAME="APPLICATION_CLIENT_ID" VALUE="APPLICATION_CLIENT_ID"/> 
+      </ITEMS> 
+    </PARAMETER>  
+    <PARAMETER FIELD="TEXT" NAME="APPLICATION_NAME" NUM_ROW="15" GROUP="CLIENT"> 
+      <DEFAULT>jobName</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER FIELD="TEXT" NAME="SERVICE_ACCOUNT_EMAIL" NUM_ROW="20" REQUIRED="true" GROUP="CLIENT" SHOW_IF="(AUTHENTICATION_METHOD == 'SERVICE_ACCOUNT')"> 
+      <DEFAULT>"[service-account-id]developer.gserviceaccount.com"</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER FIELD="FILE" NAME="KEY_FILE" NUM_ROW="21" REQUIRED="true" GROUP="CLIENT" SHOW_IF="(AUTHENTICATION_METHOD == 'SERVICE_ACCOUNT')"> 
+      <DEFAULT>"/tmp/76548c6bc96518473d7e425e1415a14e495d34eb-privatekey.p12"</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER FIELD="TEXT" NAME="USER_ACCOUNT_EMAIL" NUM_ROW="20" REQUIRED="true" GROUP="CLIENT" SHOW_IF="(AUTHENTICATION_METHOD == 'APPLICATION_CLIENT_ID')"> 
+      <DEFAULT>"yourmail@gmail.com"</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER FIELD="FILE" NAME="CLIENT_SECRET_FILE" NUM_ROW="21" REQUIRED="true" GROUP="CLIENT" SHOW_IF="(AUTHENTICATION_METHOD == 'APPLICATION_CLIENT_ID')"> 
+      <DEFAULT>"/tmp/client_secret.json"</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER NAME="SCHEMA" FIELD="SCHEMA_TYPE" REQUIRED="true" NUM_ROW="30"> 
+      <DEFAULT/> 
+    </PARAMETER>  
+    <PARAMETER NAME="FILE_ID" FIELD="TEXT" NUM_ROW="40" REQUIRED="true"> 
+      <DEFAULT/> 
+    </PARAMETER>  
+    <PARAMETER NAME="SHEET_NAME" FIELD="TEXT" NUM_ROW="45" REQUIRED="true"> 
+      <DEFAULT>"Sheet1"</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER NAME="START_ROW_INDEX" FIELD="TEXT" NUM_ROW="47" REQUIRED="true"> 
+      <DEFAULT>1</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER NAME="LIMIT" FIELD="TEXT" NUM_ROW="47"> 
+      <DEFAULT/> 
+    </PARAMETER>  
+    <PARAMETER NAME="STOP_AT_EMPTY_ROW" FIELD="CHECK" NUM_ROW="50" REQUIRED="true"> 
+      <DEFAULT>true</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER NAME="SKIP_EMPTY_ROW" FIELD="CHECK" REQUIRED="true" NUM_ROW="50" SHOW_IF="STOP_AT_EMPTY_ROW == 'false'"> 
+      <DEFAULT>false</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER NAME="COLUMN_HEADER_LINE" FIELD="CHECK" NUM_ROW="60"> 
+      <DEFAULT>true</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER NAME="CONFIG_COLUMN_POS" FIELD="CHECK" REQUIRED="true" NUM_ROW="62"> 
+      <DEFAULT>true</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER NAME="START_COLUMN_INDEX" FIELD="TEXT" NUM_ROW="70" REQUIRED="true" SHOW_IF="CONFIG_COLUMN_POS == 'false'"> 
+      <DEFAULT>"A"</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER NAME="CONFIG_COLUMN_POS_BY_HEADER" FIELD="CHECK" REQUIRED="true" NUM_ROW="63" SHOW_IF="(CONFIG_COLUMN_POS == 'true') and (COLUMN_HEADER_LINE == 'true')"> 
+      <DEFAULT>true</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER NAME="CONFIG_COLUMN_POS_BY_HEADER_LABEL" FIELD="LABEL" COLOR="0;0;0" NUM_ROW="64" SHOW_IF="(CONFIG_COLUMN_POS == 'true') and (COLUMN_HEADER_LINE == 'true') and (CONFIG_COLUMN_POS_BY_HEADER == 'true')"> 
+      <DEFAULT>Take care the row before the first data row contains the header.</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER NAME="END_COLUMN_INDEX" FIELD="TEXT" NUM_ROW="63" REQUIRED="true" SHOW_IF="(CONFIG_COLUMN_POS == 'true') and (COLUMN_HEADER_LINE == 'true') and (CONFIG_COLUMN_POS_BY_HEADER == 'true')"> 
+      <DEFAULT>"Z"</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER NAME="FIELD_CONFIG" FIELD="TABLE" REQUIRED="true" NUM_ROW="70" NB_LINES="10" SHOW_IF="CONFIG_COLUMN_POS == 'true'"> 
+      <ITEMS BASED_ON_SCHEMA="true"> 
+        <ITEM NAME="COLUMN_INDEX" FIELD="TEXT" SHOW_IF="(COLUMN_HEADER_LINE == 'false') or CONFIG_COLUMN_POS_BY_HEADER == 'false')"/>  
+        <ITEM NAME="COLUMN_HEADER_NAME" FIELD="TEXT" SHOW_IF="(COLUMN_HEADER_LINE == 'true') and CONFIG_COLUMN_POS_BY_HEADER == 'true')"/>  
+        <ITEM NAME="IGNORE_IF_MISSING" FIELD="CHECK" SHOW_IF="(COLUMN_HEADER_LINE == 'true') and CONFIG_COLUMN_POS_BY_HEADER == 'true')"/>  
+        <ITEM NAME="KEEP_LAST" FIELD="CHECK"/>  
+        <ITEM NAME="IGNORE_ERROR" FIELD="CHECK"/> 
+      </ITEMS> 
+    </PARAMETER>  
+    <PARAMETER NAME="DIE_ON_ERROR" FIELD="CHECK" NUM_ROW="130"> 
+      <DEFAULT>false</DEFAULT> 
+    </PARAMETER> 
+  </PARAMETERS>  
+  <ADVANCED_PARAMETERS> 
+    <PARAMETER NAME="DEFAULT_LOCALE" FIELD="TEXT" REQUIRED="true" NUM_ROW="10"> 
+      <DEFAULT>"en"</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER NAME="DEBUG" FIELD="CHECK" NUM_ROW="20"> 
+      <DEFAULT>false</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER NAME="TRIMALL" FIELD="CHECK" NUM_ROW="30"> 
+      <DEFAULT>false</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER NAME="TRIMSELECT" FIELD="TABLE" NUM_ROW="40" NB_LINES="10" SHOW_IF="TRIMALL=='false'"> 
+      <ITEMS BASED_ON_SCHEMA="true"> 
+        <ITEM NAME="TRIM" FIELD="CHECK"/> 
+      </ITEMS> 
+    </PARAMETER>  
+    <PARAMETER NAME="RELEASE_LABEL_20170226" FIELD="LABEL" COLOR="0;0;0" NUM_ROW="900">
+      <DEFAULT>Release: 1.0 build at: 20170226</DEFAULT>
+    </PARAMETER>
+  </ADVANCED_PARAMETERS>  
+  <CODEGENERATION> 
+    <IMPORTS> 
+      <IMPORT NAME="cimt-talendcomp-google-sheet" MODULE="cimt-talendcomp-google-sheet-1.0.jar" REQUIRED="true"/>
+      <IMPORT NAME="google-api-client" MODULE="google-api-client-1.22.0.jar" REQUIRED="true"/>
+      <IMPORT NAME="google-oauth-client" MODULE="google-oauth-client-1.22.0.jar" REQUIRED="true"/>
+      <IMPORT NAME="jsr305" MODULE="jsr305-1.3.9.jar" REQUIRED="true"/>
+      <IMPORT NAME="guava-jdk5" MODULE="guava-jdk5-17.0.jar" REQUIRED="true"/>
+      <IMPORT NAME="google-oauth-client-jetty" MODULE="google-oauth-client-jetty-1.22.0.jar" REQUIRED="true"/>
+      <IMPORT NAME="google-oauth-client-java6" MODULE="google-oauth-client-java6-1.22.0.jar" REQUIRED="true"/>
+      <IMPORT NAME="jetty" MODULE="jetty-6.1.26.jar" REQUIRED="true"/>
+      <IMPORT NAME="jetty-util" MODULE="jetty-util-6.1.26.jar" REQUIRED="true"/>
+      <IMPORT NAME="servlet-api-2.5" MODULE="servlet-api-2.5-20081211.jar" REQUIRED="true"/>
+      <IMPORT NAME="google-api-services-sheets-v4-rev459" MODULE="google-api-services-sheets-v4-rev459-1.22.0.jar" REQUIRED="true"/>
+      <IMPORT NAME="httpclient" MODULE="httpclient-4.3.6.jar" REQUIRED="true"/>
+      <IMPORT NAME="httpcore" MODULE="httpcore-4.3.3.jar" REQUIRED="true"/>
+      <IMPORT NAME="commons-logging" MODULE="commons-logging-1.1.3.jar" REQUIRED="true"/>
+      <IMPORT NAME="commons-codec" MODULE="commons-codec-1.6.jar" REQUIRED="true"/>
+      <IMPORT NAME="jackson-databind" MODULE="jackson-databind-2.7.5.jar" REQUIRED="true"/>
+      <IMPORT NAME="jackson-annotations" MODULE="jackson-annotations-2.7.0.jar" REQUIRED="true"/>
+      <IMPORT NAME="jackson-core" MODULE="jackson-core-2.7.5.jar" REQUIRED="true"/>
+      <IMPORT NAME="google-http-client-jackson2" MODULE="google-http-client-jackson2-1.22.0.jar" REQUIRED="true"/>
+      <IMPORT NAME="google-http-client" MODULE="google-http-client-1.22.0.jar" REQUIRED="true"/>
+    </IMPORTS> 
+  </CODEGENERATION>  
+  <RETURNS> 
+    <RETURN NAME="NB_LINE" TYPE="id_Integer" AVAILABILITY="AFTER"/>  
+    <RETURN NAME="FILE_ID" TYPE="id_String" AVAILABILITY="AFTER"/> 
+  </RETURNS>
+</COMPONENT>

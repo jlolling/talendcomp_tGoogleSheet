@@ -1,0 +1,369 @@
+<%@ jet 
+	imports="
+		org.talend.designer.codegen.config.CodeGeneratorArgument
+		org.talend.core.model.process.INode 
+		org.talend.core.model.process.ElementParameterParser 
+		org.talend.core.model.metadata.IMetadataTable 
+		org.talend.core.model.metadata.IMetadataColumn 
+		org.talend.core.model.process.IConnection
+		org.talend.core.model.process.IConnectionCategory
+		org.talend.core.model.utils.NodeUtil
+		java.util.List
+		java.util.ArrayList
+    	java.util.Map
+    	java.util.HashMap
+	" 
+%>
+<% 
+    CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+    INode node = (INode)codeGenArgument.getArgument();
+    String cid = node.getUniqueName();
+    // Authentication
+	String applicationName = ElementParameterParser.getValue(node, "__APPLICATION_NAME__");
+	boolean useServiceAccount = "SERVICE_ACCOUNT".equals(ElementParameterParser.getValue(node, "__AUTHENTICATION_METHOD__"));
+	String accountEmail = ElementParameterParser.getValue(node, "__SERVICE_ACCOUNT_EMAIL__");
+	String keyFile = ElementParameterParser.getValue(node, "__KEY_FILE__");
+	String clientSecretFile = ElementParameterParser.getValue(node, "__CLIENT_SECRET_FILE__");
+	String userEmail = ElementParameterParser.getValue(node, "__USER_ACCOUNT_EMAIL__");
+	String maxAttempts = ElementParameterParser.getValue(node, "__MAX_ATTEMPTS__");
+	String timeout = ElementParameterParser.getValue(node, "__TIMEOUT_IN_SEC__");
+	String timeOffset = ElementParameterParser.getValue(node, "__TIME_OFFSET__");
+	String keepClient = ElementParameterParser.getValue(node, "__KEEP_CLIENT__");
+    boolean makeItThreadSave = "true".equals(ElementParameterParser.getValue(node, "__THREAD_SAVE__"));
+	String keepClientName = ElementParameterParser.getValue(node, "__KEEP_CLIENT_KEY__");
+	keepClientName = (keepClientName != null && keepClientName.isEmpty() == false ? keepClientName : "\"\"");
+	if (makeItThreadSave) {
+	    keepClientName = keepClientName + " + Thread.currentThread().getName()";
+	}
+	// Sheet
+    String fileId = ElementParameterParser.getValue(node, "__FILE_ID__");
+	String sheetName = ElementParameterParser.getValue(node, "__SHEET_NAME__");
+	String rowStartIndex = ElementParameterParser.getValue(node, "__START_ROW_INDEX__");
+    String limit = ElementParameterParser.getValue(node, "__LIMIT__");
+    String defaultLocale = ElementParameterParser.getValue(node, "__DEFAULT_LOCALE__");
+    boolean stopAtEmptyRow = "true".equals(ElementParameterParser.getValue(node, "__STOP_AT_EMPTY_ROW__"));
+    boolean skipEmptyRows = "true".equals(ElementParameterParser.getValue(node, "__SKIP_EMPTY_ROW__"));
+    boolean trimAll = "true".equals(ElementParameterParser.getValue(node, "__TRIMALL__"));
+    boolean useIndividualColumnPositions = "true".equals(ElementParameterParser.getValue(node, "__CONFIG_COLUMN_POS__"));
+    boolean configColumnByHeader = useIndividualColumnPositions && "true".equals(ElementParameterParser.getValue(node, "__CONFIG_COLUMN_POS_BY_HEADER__"));
+    String endColumnIndex = ElementParameterParser.getValue(node, "__END_COLUMN_INDEX__");
+    if (endColumnIndex == null || endColumnIndex.trim().isEmpty()) {
+    	endColumnIndex = "null";
+    }
+	@SuppressWarnings("unchecked")
+	List<Map<String, String>> fieldConfigList = (List<Map<String,String>>) ElementParameterParser.getObjectValue(node, "__FIELD_CONFIG__");
+	Map<Integer, String> headerNameMap = new HashMap<Integer, String>();
+	Map<Integer, String> columnIndexMap = new HashMap<Integer, String>();
+    Map<Integer, Boolean> useLastMap = new HashMap<Integer, Boolean>();
+    Map<Integer, Boolean> ignoreErrorMap = new HashMap<Integer, Boolean>();
+	Map<Integer, Boolean> ignoreMissingMap = new HashMap<Integer, Boolean>();
+	{
+		int columnIndex = 0;
+		for (Map<String, String> fd : fieldConfigList) {
+			String schemaColumn = fd.get("SCHEMA_COLUMN");
+			String columnIndexName = fd.get("COLUMN_INDEX");
+			String useLast = fd.get("KEEP_LAST");
+			if (columnIndexName != null && columnIndexName.trim().isEmpty() == false) {
+				columnIndexMap.put(columnIndex, columnIndexName);
+			} else {
+				columnIndexMap.put(columnIndex, String.valueOf(columnIndex));
+			}
+			String columnHeader = fd.get("COLUMN_HEADER_NAME");
+			if (configColumnByHeader && columnHeader != null && columnHeader.trim().isEmpty() == false) {
+				headerNameMap.put(columnIndex, columnHeader);
+			}
+			useLastMap.put(columnIndex, useIndividualColumnPositions && "true".equals(useLast));
+			ignoreMissingMap.put(columnIndex, "true".equals(fd.get("IGNORE_IF_MISSING")));
+			ignoreErrorMap.put(columnIndex, "true".equals(fd.get("IGNORE_ERROR")));
+			columnIndex++;
+		} // for (Map<String, String> fd
+	}
+	@SuppressWarnings("unchecked")
+	List<Map<String, String>> trimList = (List<Map<String,String>>) ElementParameterParser.getObjectValue(node, "__TRIMSELECT__");
+	Map<String, String> trimMap = new HashMap<String, String>();
+	for (Map<String, String> entry : trimList) {
+		String schemaColumn = entry.get("SCHEMA_COLUMN");
+		trimMap.put(schemaColumn, (trimAll ? "true" : entry.get("TRIM")));
+	} // for (Map<String, String> entry : trimList)
+    IConnection conn = null;
+    String mainConnector = null;
+	List< ? extends IConnection> conns = NodeUtil.getOutgoingConnections(node, IConnectionCategory.DATA);
+    if (conns != null && conns.size() > 0) {
+    	conn = conns.get(0);
+   		mainConnector = conn.getConnectorName();
+    } // if (conns != null && conns.size() > 0)
+	List<IMetadataColumn> listColumns = new ArrayList<IMetadataColumn>();
+	IMetadataTable metadata = node.getMetadataFromConnector(mainConnector);
+	if (metadata != null) {
+   		listColumns = metadata.getListColumns();
+	} // if (metadata != null)
+	boolean dieOnError = "true".equals(ElementParameterParser.getValue(node, "__DIE_ON_ERROR__"));
+	boolean debug = "true".equals(ElementParameterParser.getValue(node, "__DEBUG__"));
+%>
+    // start creating client
+<%	if ("true".equals(keepClient)) {
+		String email = null;
+		if (useServiceAccount) {
+			email = accountEmail;
+		} else {
+			email = userEmail;
+		} %>
+	de.cimt.talendcomp.google.sheet.GoogleSheetInput <%=cid%> = (de.cimt.talendcomp.google.sheet.GoogleSheetInput) de.cimt.talendcomp.google.sheet.GoogleSheet.getFromCache(<%=email%> + <%=keepClientName%> + "<%=cid%>" + jobName);
+	if (<%=cid%> == null) {
+		<%=cid%>.setDebug(<%=debug%>);
+		<%=cid%> = new de.cimt.talendcomp.google.sheet.GoogleSheetInput();
+<%	} else { // if ("true".equals(keepClient)) %>
+	    de.cimt.talendcomp.google.sheet.GoogleSheetInput <%=cid%> = new de.cimt.talendcomp.google.sheet.GoogleSheetInput();
+		<%=cid%>.setDebug(<%=debug%>);
+<%	} // if ("true".equals(keepClient)) %>
+<%	if (applicationName != null && applicationName.trim().isEmpty() == false) { %>
+		<%=cid%>.setApplicationName(<%=applicationName%>);
+<%	} %>
+        <%=cid%>.setUseServiceAccount(<%=useServiceAccount%>);
+<%	if (useServiceAccount) { %>
+        <%=cid%>.setUseApplicationClientID(false);
+        // setup credentials with service account
+		<%=cid%>.setAccountEmail(<%=accountEmail%>);
+		<%=cid%>.setKeyFile(<%=keyFile%>);
+<%	} else { %>
+        // setup with Client ID for native application
+        <%=cid%>.setUseApplicationClientID(true);
+		<%=cid%>.setAccountEmail(<%=userEmail%>);
+		<%=cid%>.setClientSecretFile(<%=clientSecretFile%>);
+<%	} %> 
+<%	if (timeout != null && timeout.trim().isEmpty() == false) { %>
+		<%=cid%>.setTimeoutInSeconds(<%=timeout%>);
+<%	} %>
+<%	if (timeOffset != null && timeOffset.trim().isEmpty() == false) { %>
+		<%=cid%>.setTimeMillisOffsetToPast(<%=timeOffset%>);
+<%	} %>
+<%	if (applicationName != null && applicationName.trim().isEmpty() == false) { %>
+		<%=cid%>.setApplicationName(<%=applicationName%>);
+<%	} %>
+		try {
+		    // initialize client with private key
+			<%=cid%>.initializeClient();
+		} catch (Exception e) {
+			globalMap.put("<%=cid%>_ERROR_MESSAGE", e.getMessage());
+<%	if (dieOnError) { %>
+			throw e;
+<%	} else { %>
+			e.printStackTrace();
+<%	} %>	
+		}
+		globalMap.put("<%=cid%>", <%=cid%>);
+<%	if ("true".equals(keepClient)) {
+		String email = null;
+		if (useServiceAccount) {
+			email = accountEmail;
+		} else {
+			email = userEmail;
+		} %>
+		de.cimt.talendcomp.google.sheet.GoogleSheet.putIntoCache(<%=email%> + <%=keepClientName%> + "<%=cid%>" + jobName, <%=cid%>);
+	}
+<%	} // if ("true".equals(keepClient)) %>
+	<%=cid%>.reset();
+	<%=cid%>.setDebug(<%=debug%>);
+	// start Sheet handling
+	<%=cid%>.setSpreadsheetId(<%=fileId%>);
+	<%=cid%>.setSheetName(<%=sheetName%>);
+<%	if (configColumnByHeader) { %>
+	<%=cid%>.setStartRowIndex((<%=rowStartIndex%>) - 1);
+<%  } else { %>
+	<%=cid%>.setStartRowIndex(<%=rowStartIndex%>);
+<%  } %>
+	<%=cid%>.setFindColumnByHeader(<%=configColumnByHeader%>, <%=endColumnIndex%>);
+
+	// Helper class to reduce the byte code footprint
+	class Helper_<%=cid%> {
+		
+		private de.cimt.talendcomp.google.sheet.GoogleSheetInput sheetInput = null;
+		
+		public Helper_<%=cid%>(final de.cimt.talendcomp.google.sheet.GoogleSheetInput sheetInput) {
+			this.sheetInput = sheetInput;
+		}
+	
+		public boolean hasCurrentRowValues() {
+<%  if (stopAtEmptyRow || skipEmptyRows) { %>
+			if (sheetInput.isRowEmpty() == false) {
+				boolean rowHasValues = false;
+<%      for (int columnIndex = 0; columnIndex < listColumns.size(); columnIndex++) { %>
+				if (rowHasValues || sheetInput.isCellValueEmpty(<%=columnIndex%>) == false) {
+					rowHasValues = true;
+				}
+<%      } // for (int columnIndex = 0; columnIndex < listColumns.size(); columnIndex++) %>
+				return rowHasValues;
+			} else {
+				return false;
+			}
+<%  } else { %>
+			return true;
+<%  } // if (stopAtEmptyRow || skipEmptyRows) %>
+		} 
+
+<%  if (conn != null) { %>	
+		public void fill(<%=conn.getName()%>Struct out, int rowNum) throws Exception {
+<%		for (int columnIndex = 0; columnIndex < listColumns.size(); columnIndex++) {
+			IMetadataColumn column = listColumns.get(columnIndex);
+			boolean trim = "true".equals(trimMap.get(columnIndex));
+			boolean useLast = useLastMap.get(columnIndex);
+			String type = column.getTalendType();
+			if ("id_String".equals(type)) { %>
+	 		try {
+				out.<%=column.getLabel()%> = sheetInput.getStringCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>, <%=trim%>);
+			} catch (Exception e) {
+<%      	if (ignoreErrorMap.get(columnIndex)) { %>
+	            sheetInput.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
+<%	    	} else { %>
+				throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
+<%      	} %>
+			}
+<%      	} else if ("id_Integer".equals(type)) { %>	
+	 		try {
+	    		out.<%=column.getLabel()%> = sheetInput.getIntegerCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>);
+			} catch (Exception e) {
+<%      	if (ignoreErrorMap.get(columnIndex)) { %>
+	            sheetInput.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
+<%	    	} else { %>
+				throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
+<%      	} %>
+			}
+<%      	} else if ("id_Long".equals(type)) { %>	
+	 		try {
+	    		out.<%=column.getLabel()%> = sheetInput.getLongCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>);
+			} catch (Exception e) {
+<%      	if (ignoreErrorMap.get(columnIndex)) { %>
+	            sheetInput.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
+<%	    	} else { %>
+				throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
+<%      	} %>
+			}
+<%      	} else if ("id_BigDecimal".equals(type)) { %>	
+	 		try {
+				out.<%=column.getLabel()%> = sheetInput.getBigDecimalCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>);
+			} catch (Exception e) {
+<%      	if (ignoreErrorMap.get(columnIndex)) { %>
+	            sheetInput.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
+<%	    	} else { %>
+				throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
+<%      	} %>
+			}
+<%      	} else if ("id_Double".equals(type)) { %>	
+	 		try {
+				out.<%=column.getLabel()%> = sheetInput.getDoubleCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>);
+			} catch (Exception e) {
+<%      	if (ignoreErrorMap.get(columnIndex)) { %>
+	            sheetInput.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
+<%	    	} else { %>
+				throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
+<%      	} %>
+			}
+<%      	} else if ("id_Float".equals(type)) { %>	
+	 		try {
+				out.<%=column.getLabel()%> = sheetInput.getFloatCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>);
+			} catch (Exception e) {
+<%      	if (ignoreErrorMap.get(columnIndex)) { %>
+	            sheetInput.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
+<%	    	} else { %>
+				throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
+<%      	} %>
+			}
+<%      	} else if ("id_Short".equals(type)) { %>	
+	 		try {
+				out.<%=column.getLabel()%> = sheetInput.getShortCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>);
+			} catch (Exception e) {
+<%      	if (ignoreErrorMap.get(columnIndex)) { %>
+	            sheetInput.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
+<%	    	} else { %>
+				throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
+<%      	} %>
+			}
+<%      	} else if ("id_Date".equals(type)) { %>
+	 		try {
+				out.<%=column.getLabel()%> = sheetInput.getDateCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>, <%=column.getPattern()%>);
+			} catch (Exception e) {
+<%      	if (ignoreErrorMap.get(columnIndex)) { %>
+	            sheetInput.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
+<%	    	} else { %>
+				throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
+<%      	} %>
+			}
+<%      	} else if ("id_Boolean".equals(type)) { %>
+	 		try {
+				out.<%=column.getLabel()%> = sheetInput.getBooleanCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>);
+			} catch (Exception e) {
+<%      	if (ignoreErrorMap.get(columnIndex)) { %>
+	            sheetInput.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
+<%	    	} else { %>
+				throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
+<%      	} %>
+			}
+<%      	} else { %>
+			// unknown cell data type, so we take it as String
+	 		try {
+				out.<%=column.getLabel()%> = sheetInput.getStringCellValue(<%=columnIndex%>, <%=column.isNullable()%>, <%=useLast%>, <%=trim%>);
+			} catch (Exception e) {
+<%      	if (ignoreErrorMap.get(columnIndex)) { %>
+	            sheetInput.warn("Read column <%=column.getLabel()%> in row number=" + rowNum + " error ignored:" + e.getMessage());
+<%	    	} else { %>
+				throw new Exception("Read column <%=column.getLabel()%> in row number=" + rowNum + " failed:" + e.getMessage(), e); 
+<%      	} %>
+			}
+			
+<%      }
+    	} // for (columnIndex = 0 %>		
+		} // end of fill method
+<%  } // if (conn != null) %>	
+	} // end of Helper class
+	
+	Helper_<%=cid%> <%=cid%>_helper = new Helper_<%=cid%>(<%=cid%>);
+	int nb_line_<%=cid%> = 0;
+<%	for (int columnIndex = 0, n = listColumns.size(); columnIndex < n; columnIndex++) {
+		String columnIndexName = columnIndexMap.get(columnIndex);
+		String headerName = headerNameMap.get(columnIndex);
+		Boolean ignoreMissing = ignoreMissingMap.get(columnIndex);
+		if (headerName != null && headerName.trim().isEmpty() == false) { %>
+	<%=cid%>.setDataColumnPositionByHeader(<%=columnIndex%>, <%=headerName%>, <%=ignoreMissing%>);
+<%		} else { %>
+	<%=cid%>.setDataColumnPosition(<%=columnIndex%>, <%=columnIndexName%>);
+<%		} // if (headerName != null && headerName.trim().isEmpty() == false)
+	} // for (int columnIndex = 0, n = listColumns.size(); i < n; i++)
+	if (conn != null) { %>
+	try {
+		<%=cid%>.executeQuery();
+	} catch (Exception ex) {
+		globalMap.put("<%=cid%>_ERROR_MESSAGE", ex.getMessage());
+		<%=cid%>.error(ex.getMessage(), ex);
+		throw ex;
+	}
+	while (<%=cid%>.next()) {
+    	globalMap.put("<%=cid%>_CURRENT_ROW_INDEX", <%=cid%>.getCurrentRowIndex());
+<%  	if (limit != null && limit.isEmpty() == false) { %>
+		if (<%=limit%> > 0 && nb_line_<%=cid%> >= <%=limit%>) {
+		    <%=cid%>.debug("Limit reached at row: " + <%=cid%>.getCurrentRowIndex());
+			break;
+		}
+<%  	} %>
+       	nb_line_<%=cid%>++;
+<%  	if (stopAtEmptyRow || skipEmptyRows) { %>
+		if (<%=cid%>_helper.hasCurrentRowValues() == false) {
+<%      	if (stopAtEmptyRow) { %>
+            // stop at empty row
+			<%=cid%>.debug("Stop reading at empty row: " + <%=cid%>.getCurrentRowIndex());
+			break;
+<%			} else if (skipEmptyRows) { %>
+			// skip empty row
+			<%=cid%>.debug("Skip empty row: " + <%=cid%>.getCurrentRowIndex());
+			continue;
+<%      	} %> 
+		}
+<%		} // if (stopAtEmptyRow || skipEmptyRows) %>
+    	<%=conn.getName()%> = new <%=conn.getName()%>Struct(); // to avoid cell value reusing in errors
+    	try {
+		<%=cid%>_helper.fill(<%=conn.getName()%>, <%=cid%>.getCurrentRowIndex());
+		} catch (Exception ex) {
+			globalMap.put("<%=cid%>_ERROR_MESSAGE", ex.getMessage());
+			<%=cid%>.error(ex.getMessage(), ex);
+			throw ex;
+		}
+<%  } // if (conn != null) %>
