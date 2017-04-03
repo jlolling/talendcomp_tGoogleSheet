@@ -128,6 +128,7 @@
 	<%=cid%>.setDebug(<%=debug%>);
 	// start Sheet handling
 	<%=cid%>.setSpreadsheetId(<%=fileId%>);
+	globalMap.put("<%=cid%>_FILE_ID", <%=cid%>.getSpreadsheetId());
 	<%=cid%>.setSheetName(<%=sheetName%>);
 	<%=cid%>.setStartRowIndex(<%=startRowIndex%>);
 	<%=cid%>.setStartColumnName(<%=startColumnIndex%>);
