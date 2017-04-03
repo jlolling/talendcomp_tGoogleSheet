@@ -1,0 +1,135 @@
+<%@ jet 
+	imports="
+		org.talend.designer.codegen.config.CodeGeneratorArgument
+		org.talend.core.model.process.INode 
+		org.talend.core.model.process.ElementParameterParser 
+		org.talend.core.model.metadata.IMetadataTable 
+		org.talend.core.model.metadata.IMetadataColumn 
+		org.talend.core.model.process.IConnection
+		org.talend.core.model.process.IConnectionCategory
+		org.talend.core.model.utils.NodeUtil
+		java.util.List
+		java.util.ArrayList
+    	java.util.Map
+    	java.util.HashMap
+	" 
+%>
+<% 
+    CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+    INode node = (INode)codeGenArgument.getArgument();
+    String cid = node.getUniqueName();
+    // Authentication
+	String applicationName = ElementParameterParser.getValue(node, "__APPLICATION_NAME__");
+	boolean useServiceAccount = "SERVICE_ACCOUNT".equals(ElementParameterParser.getValue(node, "__AUTHENTICATION_METHOD__"));
+	String accountEmail = ElementParameterParser.getValue(node, "__SERVICE_ACCOUNT_EMAIL__");
+	String keyFile = ElementParameterParser.getValue(node, "__KEY_FILE__");
+	String clientSecretFile = ElementParameterParser.getValue(node, "__CLIENT_SECRET_FILE__");
+	String userEmail = ElementParameterParser.getValue(node, "__USER_ACCOUNT_EMAIL__");
+	String maxAttempts = ElementParameterParser.getValue(node, "__MAX_ATTEMPTS__");
+	String timeout = ElementParameterParser.getValue(node, "__TIMEOUT_IN_SEC__");
+	String timeOffset = ElementParameterParser.getValue(node, "__TIME_OFFSET__");
+	String keepClient = ElementParameterParser.getValue(node, "__KEEP_CLIENT__");
+    boolean makeItThreadSave = "true".equals(ElementParameterParser.getValue(node, "__THREAD_SAVE__"));
+	String keepClientName = ElementParameterParser.getValue(node, "__KEEP_CLIENT_KEY__");
+	keepClientName = (keepClientName != null && keepClientName.isEmpty() == false ? keepClientName : "\"\"");
+	if (makeItThreadSave) {
+	    keepClientName = keepClientName + " + Thread.currentThread().getName()";
+	}
+	// Sheet
+    String fileId = ElementParameterParser.getValue(node, "__FILE_ID__");
+	String sheetName = ElementParameterParser.getValue(node, "__SHEET_NAME__");
+	String startRowIndex = ElementParameterParser.getValue(node, "__START_ROW_INDEX__");
+	if (startRowIndex == null && startRowIndex.trim().isEmpty()) {
+		startRowIndex = "null";
+	}
+	String startColumnIndex = ElementParameterParser.getValue(node, "__START_COLUMN_INDEX__");
+	if (startColumnIndex == null && startColumnIndex.trim().isEmpty()) {
+		startColumnIndex = "null";
+	}
+    String defaultLocale = ElementParameterParser.getValue(node, "__DEFAULT_LOCALE__");
+    IConnection conn = null;
+    String mainConnector = null;
+	List< ? extends IConnection> conns = NodeUtil.getIncomingConnections(node, IConnectionCategory.DATA);
+    if (conns != null && conns.size() > 0) {
+    	conn = conns.get(0);
+   		mainConnector = conn.getConnectorName();
+    } // if (conns != null && conns.size() > 0)
+	List<IMetadataColumn> listColumns = new ArrayList<IMetadataColumn>();
+	IMetadataTable metadata = node.getMetadataFromConnector(mainConnector);
+	if (metadata != null) {
+   		listColumns = metadata.getListColumns();
+	} // if (metadata != null)
+	boolean dieOnError = "true".equals(ElementParameterParser.getValue(node, "__DIE_ON_ERROR__"));
+	boolean debug = "true".equals(ElementParameterParser.getValue(node, "__DEBUG__"));
+%>
+    // start creating client
+<%	if ("true".equals(keepClient)) {
+		String email = null;
+		if (useServiceAccount) {
+			email = accountEmail;
+		} else {
+			email = userEmail;
+		} %>
+	de.jlo.talendcomp.google.sheet.GoogleSheetOutput <%=cid%> = (de.jlo.talendcomp.google.sheet.GoogleSheetOutput) de.jlo.talendcomp.google.sheet.GoogleSheet.getFromCache(<%=email%> + <%=keepClientName%> + "<%=cid%>" + jobName);
+	if (<%=cid%> == null) {
+		<%=cid%>.setDebug(<%=debug%>);
+		<%=cid%> = new de.jlo.talendcomp.google.sheet.GoogleSheetOutput();
+<%	} else { // if ("true".equals(keepClient)) %>
+	    de.jlo.talendcomp.google.sheet.GoogleSheetOutput <%=cid%> = new de.jlo.talendcomp.google.sheet.GoogleSheetOutput();
+		<%=cid%>.setDebug(<%=debug%>);
+<%	} // if ("true".equals(keepClient)) %>
+<%	if (applicationName != null && applicationName.trim().isEmpty() == false) { %>
+		<%=cid%>.setApplicationName(<%=applicationName%>);
+<%	} %>
+        <%=cid%>.setUseServiceAccount(<%=useServiceAccount%>);
+<%	if (useServiceAccount) { %>
+        <%=cid%>.setUseApplicationClientID(false);
+        // setup credentials with service account
+		<%=cid%>.setAccountEmail(<%=accountEmail%>);
+		<%=cid%>.setKeyFile(<%=keyFile%>);
+<%	} else { %>
+        // setup with Client ID for native application
+        <%=cid%>.setUseApplicationClientID(true);
+		<%=cid%>.setAccountEmail(<%=userEmail%>);
+		<%=cid%>.setClientSecretFile(<%=clientSecretFile%>);
+<%	} %> 
+<%	if (timeout != null && timeout.trim().isEmpty() == false) { %>
+		<%=cid%>.setTimeoutInSeconds(<%=timeout%>);
+<%	} %>
+<%	if (timeOffset != null && timeOffset.trim().isEmpty() == false) { %>
+		<%=cid%>.setTimeMillisOffsetToPast(<%=timeOffset%>);
+<%	} %>
+<%	if (applicationName != null && applicationName.trim().isEmpty() == false) { %>
+		<%=cid%>.setApplicationName(<%=applicationName%>);
+<%	} %>
+		try {
+		    // initialize client with private key
+			<%=cid%>.initializeClient();
+		} catch (Exception e) {
+			globalMap.put("<%=cid%>_ERROR_MESSAGE", e.getMessage());
+<%	if (dieOnError) { %>
+			throw e;
+<%	} else { %>
+			e.printStackTrace();
+<%	} %>	
+		}
+		globalMap.put("<%=cid%>", <%=cid%>);
+<%	if ("true".equals(keepClient)) {
+		String email = null;
+		if (useServiceAccount) {
+			email = accountEmail;
+		} else {
+			email = userEmail;
+		} %>
+		de.jlo.talendcomp.google.sheet.GoogleSheet.putIntoCache(<%=email%> + <%=keepClientName%> + "<%=cid%>" + jobName, <%=cid%>);
+	}
+<%	} // if ("true".equals(keepClient)) %>
+	<%=cid%>.reset();
+	<%=cid%>.setDebug(<%=debug%>);
+	// start Sheet handling
+	<%=cid%>.setSpreadsheetId(<%=fileId%>);
+	<%=cid%>.setSheetName(<%=sheetName%>);
+	<%=cid%>.setStartRowIndex(<%=startRowIndex%>);
+	<%=cid%>.setStartColumnName(<%=startColumnIndex%>);
+	int nb_line_<%=cid%> = 0;
+	

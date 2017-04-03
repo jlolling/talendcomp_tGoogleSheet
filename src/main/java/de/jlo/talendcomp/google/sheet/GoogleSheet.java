@@ -1,4 +1,4 @@
-package de.cimt.talendcomp.google.sheet;
+package de.jlo.talendcomp.google.sheet;
 
 import java.io.File;
 import java.io.FileReader;
@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -29,8 +30,11 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.Clock;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
+import com.google.api.services.sheets.v4.Sheets.Spreadsheets;
 import com.google.api.services.sheets.v4.SheetsRequest;
 import com.google.api.services.sheets.v4.SheetsScopes;
+import com.google.api.services.sheets.v4.model.Sheet;
+import com.google.api.services.sheets.v4.model.Spreadsheet;
 
 
 public abstract class GoogleSheet {
@@ -58,6 +62,7 @@ public abstract class GoogleSheet {
 	private Sheets sheetService = null;
 	private Locale defaultLocale = null;
 	private boolean debug = false;
+	private String sheetName = null;
 	
 	public GoogleSheet() throws Exception {
 		HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
@@ -244,7 +249,7 @@ public abstract class GoogleSheet {
 	
 	public void debug(String message) {
 		if (debug) {
-			if (logger != null) {
+			if (logger != null && logger.isDebugEnabled()) {
 				logger.debug(message);
 			} else {
 				System.out.println("DEBUG: " + message);
@@ -353,7 +358,14 @@ public abstract class GoogleSheet {
 		for (currentAttempt = 0; currentAttempt < maxRetriesInCaseOfErrors; currentAttempt++) {
 			errorCode = 0;
 			try {
+				if (isDebugEnabled()) {
+					debug("Request: " + request.toString());
+					debug("Request body: " + request.getJsonContent());
+				}
 				response = (GenericJson) request.execute();
+				if (isDebugEnabled()) {
+					debug("Response: " + response.toString());
+				}
 				break;
 			} catch (IOException ge) {
 				warn("Got error:" + ge.getMessage());
@@ -366,7 +378,7 @@ public abstract class GoogleSheet {
 					throw ge;
 				}
 				if (currentAttempt == (maxRetriesInCaseOfErrors - 1)) {
-					error("All repetitions of the request failed:" + ge.getMessage(), ge);
+					error("All retries of the request have been failed:" + ge.getMessage(), ge);
 					throw ge;
 				} else {
 					// wait
@@ -405,5 +417,25 @@ public abstract class GoogleSheet {
 		}
 		return defaultLocale;
 	}
+
+	public String getSheetName() {
+		return sheetName;
+	}
+
+	public void setSheetName(String sheetName) {
+		if (CellUtil.isEmpty(sheetName) == false) {
+			this.sheetName = sheetName;
+		}
+	}
 	
+	public List<Sheet> listSheets() throws Exception {
+		Spreadsheets.Get reqGetSheets = getService().spreadsheets().get(getSpreadsheetId());
+		reqGetSheets.setPrettyPrint(false);
+		reqGetSheets.setPp(false);
+		reqGetSheets.setIncludeGridData(false);
+		Spreadsheet spreadSheet = (Spreadsheet) execute(reqGetSheets);
+		List<Sheet> listSheets = spreadSheet.getSheets();
+		return listSheets;
+	}
+
 }

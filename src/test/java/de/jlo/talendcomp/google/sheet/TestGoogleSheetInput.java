@@ -1,4 +1,4 @@
-package de.cimt.talendcomp.google.sheet;
+package de.jlo.talendcomp.google.sheet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -10,15 +10,16 @@ import org.junit.Before;
 import org.junit.Test;
 
 import de.cimt.talendcomp.test.TalendFakeJob;
+import de.jlo.talendcomp.google.sheet.GoogleSheetInput;
 
 public class TestGoogleSheetInput extends TalendFakeJob {
 
 	@Before
 	public void testIntializeClient() throws Exception {
 		// use own client
-		de.cimt.talendcomp.google.sheet.GoogleSheetInput tGoogleSheetInput_1 = null;
+		de.jlo.talendcomp.google.sheet.GoogleSheetInput tGoogleSheetInput_1 = null;
 		if (tGoogleSheetInput_1 == null) {
-			tGoogleSheetInput_1 = new de.cimt.talendcomp.google.sheet.GoogleSheetInput();
+			tGoogleSheetInput_1 = new de.jlo.talendcomp.google.sheet.GoogleSheetInput();
 			// create new drive client
 			tGoogleSheetInput_1.setUseServiceAccount(false);
 			tGoogleSheetInput_1.setUseApplicationClientID(true);
@@ -58,7 +59,7 @@ public class TestGoogleSheetInput extends TalendFakeJob {
 	
 	@Test
 	public void testFetchValuesByName() throws Exception {
-		de.cimt.talendcomp.google.sheet.GoogleSheetInput gs = (GoogleSheetInput) globalMap.get("tGoogleSheetInput_1");
+		de.jlo.talendcomp.google.sheet.GoogleSheetInput gs = (GoogleSheetInput) globalMap.get("tGoogleSheetInput_1");
 		gs.setDebug(true);
 		String spreadsheetId = "1unqwDlz1GrPpVUjET-JkUA0FaXkaqMGDX2UV6ll8at0";
 		gs.setSpreadsheetId(spreadsheetId);
@@ -139,7 +140,7 @@ public class TestGoogleSheetInput extends TalendFakeJob {
 
 	@Test
 	public void testFetchValuesById() throws Exception {
-		de.cimt.talendcomp.google.sheet.GoogleSheetInput gs = (GoogleSheetInput) globalMap.get("tGoogleSheetInput_1");
+		de.jlo.talendcomp.google.sheet.GoogleSheetInput gs = (GoogleSheetInput) globalMap.get("tGoogleSheetInput_1");
 		String spreadsheetId = "1unqwDlz1GrPpVUjET-JkUA0FaXkaqMGDX2UV6ll8at0";
 		gs.setSpreadsheetId(spreadsheetId);
 		gs.setSheetName("Sheet2");
@@ -182,7 +183,7 @@ public class TestGoogleSheetInput extends TalendFakeJob {
 
 	@Test
 	public void testFetchValuesColumnConfigByHeader() throws Exception {
-		de.cimt.talendcomp.google.sheet.GoogleSheetInput gs = (GoogleSheetInput) globalMap.get("tGoogleSheetInput_1");
+		de.jlo.talendcomp.google.sheet.GoogleSheetInput gs = (GoogleSheetInput) globalMap.get("tGoogleSheetInput_1");
 		String spreadsheetId = "1unqwDlz1GrPpVUjET-JkUA0FaXkaqMGDX2UV6ll8at0";
 		gs.setSpreadsheetId(spreadsheetId);
 		gs.setSheetName("Sheet2");

@@ -1,4 +1,4 @@
-package de.cimt.talendcomp.google.sheet;
+package de.jlo.talendcomp.google.sheet;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -28,21 +28,29 @@ public class GoogleSheetInput extends GoogleSheet {
 	private int countRows = -1;
 	private int currentRowIndex = -1;
 	private TypeUtil typeUtil = new TypeUtil();
-	private String sheetName = null;
 	private String range = null;
 	private int startRowIndex = 1;
 	private Integer lastRowIndex = null;
 	private String startColumnName = "A";
 	private int lastColumnIndex = -1;
 	private List<String> headerRow = null;
+	private Integer limit = null;
 	
 	public GoogleSheetInput() throws Exception {
 		super();
 	}
 	
+	public Integer getLastRowIndex() {
+		if (limit != null && limit.intValue() > 0) {
+			return startRowIndex + limit.intValue();
+		} else {
+			return lastRowIndex;
+		}
+	}
+	
 	public void executeQuery() throws Exception {
 		debug("Execute query...");
-		range = CellUtil.buildRange(sheetName, startColumnName, lastColumnIndex, startRowIndex, lastRowIndex);
+		range = CellUtil.buildRange(getSheetName(), startColumnName, lastColumnIndex, startRowIndex, getLastRowIndex());
 		if (range == null || range.trim().isEmpty()) {
 			throw new Exception("No range set. Please refer to Google Spreadsheet A1-notation for ranges!");
 		}
@@ -254,16 +262,6 @@ public class GoogleSheetInput extends GoogleSheet {
 		return null;
 	}
 
-	public String getSheetName() {
-		return sheetName;
-	}
-
-	public void setSheetName(String sheetName) {
-		if (CellUtil.isEmpty(sheetName) == false) {
-			this.sheetName = sheetName;
-		}
-	}
-
 	public int getStartRowIndex() {
 		return startRowIndex;
 	}
@@ -407,6 +405,14 @@ public class GoogleSheetInput extends GoogleSheet {
 			int cellColumnIndex = CellUtil.convertColStringToIndex(lastColumnToCheck);
 			checkForLastColumnIndex(cellColumnIndex);
 		}
+	}
+
+	public Integer getLimit() {
+		return limit;
+	}
+
+	public void setLimit(Integer limit) {
+		this.limit = limit;
 	}
 
 }

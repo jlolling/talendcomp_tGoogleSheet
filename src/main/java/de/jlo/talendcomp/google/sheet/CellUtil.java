@@ -1,6 +1,10 @@
-package de.cimt.talendcomp.google.sheet;
+package de.jlo.talendcomp.google.sheet;
 
 import java.util.Locale;
+
+import com.google.api.services.sheets.v4.model.GridProperties;
+import com.google.api.services.sheets.v4.model.Sheet;
+import com.google.api.services.sheets.v4.model.SheetProperties;
 
 public class CellUtil {
 	
@@ -70,6 +74,19 @@ public class CellUtil {
     	}
     }
 
+    public static int getLastSheetRowIndex(Sheet sheet) {
+    	SheetProperties props = sheet.getProperties();
+    	GridProperties gridProps = props.getGridProperties();
+    	Integer lastRowIndex = 0;
+    	if (gridProps != null) {
+    		lastRowIndex = gridProps.getRowCount();
+    		if (lastRowIndex != null && lastRowIndex > 0) {
+    			lastRowIndex = lastRowIndex - 1;
+    		}
+    	}
+    	return lastRowIndex;
+    }
+    
     public static String buildRange(String sheetName, String firstColumnName, int lastColumnIndex, Integer firstRowIndex, Integer lastRowIndex) {
     	StringBuilder sb = new StringBuilder();
     	boolean hasSheetName = false;

@@ -38,8 +38,18 @@
 	// Sheet
     String fileId = ElementParameterParser.getValue(node, "__FILE_ID__");
 	String sheetName = ElementParameterParser.getValue(node, "__SHEET_NAME__");
-	String rowStartIndex = ElementParameterParser.getValue(node, "__START_ROW_INDEX__");
+	String startRowIndex = ElementParameterParser.getValue(node, "__START_ROW_INDEX__");
+	if (startRowIndex == null && startRowIndex.trim().isEmpty()) {
+		startRowIndex = "null";
+	}
+	String startColumnIndex = ElementParameterParser.getValue(node, "__START_COLUMN_INDEX__");
+	if (startColumnIndex == null && startColumnIndex.trim().isEmpty()) {
+		startColumnIndex = "null";
+	}
     String limit = ElementParameterParser.getValue(node, "__LIMIT__");
+    if (limit == null || limit.trim().isEmpty()) {
+    	limit = "null";
+    }
     String defaultLocale = ElementParameterParser.getValue(node, "__DEFAULT_LOCALE__");
     boolean stopAtEmptyRow = "true".equals(ElementParameterParser.getValue(node, "__STOP_AT_EMPTY_ROW__"));
     boolean skipEmptyRows = "true".equals(ElementParameterParser.getValue(node, "__SKIP_EMPTY_ROW__"));
@@ -108,12 +118,12 @@
 		} else {
 			email = userEmail;
 		} %>
-	de.cimt.talendcomp.google.sheet.GoogleSheetInput <%=cid%> = (de.cimt.talendcomp.google.sheet.GoogleSheetInput) de.cimt.talendcomp.google.sheet.GoogleSheet.getFromCache(<%=email%> + <%=keepClientName%> + "<%=cid%>" + jobName);
+	de.jlo.talendcomp.google.sheet.GoogleSheetInput <%=cid%> = (de.jlo.talendcomp.google.sheet.GoogleSheetInput) de.jlo.talendcomp.google.sheet.GoogleSheet.getFromCache(<%=email%> + <%=keepClientName%> + "<%=cid%>" + jobName);
 	if (<%=cid%> == null) {
 		<%=cid%>.setDebug(<%=debug%>);
-		<%=cid%> = new de.cimt.talendcomp.google.sheet.GoogleSheetInput();
+		<%=cid%> = new de.jlo.talendcomp.google.sheet.GoogleSheetInput();
 <%	} else { // if ("true".equals(keepClient)) %>
-	    de.cimt.talendcomp.google.sheet.GoogleSheetInput <%=cid%> = new de.cimt.talendcomp.google.sheet.GoogleSheetInput();
+	    de.jlo.talendcomp.google.sheet.GoogleSheetInput <%=cid%> = new de.jlo.talendcomp.google.sheet.GoogleSheetInput();
 		<%=cid%>.setDebug(<%=debug%>);
 <%	} // if ("true".equals(keepClient)) %>
 <%	if (applicationName != null && applicationName.trim().isEmpty() == false) { %>
@@ -159,7 +169,7 @@
 		} else {
 			email = userEmail;
 		} %>
-		de.cimt.talendcomp.google.sheet.GoogleSheet.putIntoCache(<%=email%> + <%=keepClientName%> + "<%=cid%>" + jobName, <%=cid%>);
+		de.jlo.talendcomp.google.sheet.GoogleSheet.putIntoCache(<%=email%> + <%=keepClientName%> + "<%=cid%>" + jobName, <%=cid%>);
 	}
 <%	} // if ("true".equals(keepClient)) %>
 	<%=cid%>.reset();
@@ -167,19 +177,21 @@
 	// start Sheet handling
 	<%=cid%>.setSpreadsheetId(<%=fileId%>);
 	<%=cid%>.setSheetName(<%=sheetName%>);
+	<%=cid%>.setLimit(<%=limit%>);
 <%	if (configColumnByHeader) { %>
-	<%=cid%>.setStartRowIndex((<%=rowStartIndex%>) - 1);
+	<%=cid%>.setStartRowIndex((<%=startRowIndex%>) - 1);
 <%  } else { %>
-	<%=cid%>.setStartRowIndex(<%=rowStartIndex%>);
+	<%=cid%>.setStartRowIndex(<%=startRowIndex%>);
+	<%=cid%>.setStartColumnName(<%=startColumnIndex%>);
 <%  } %>
 	<%=cid%>.setFindColumnByHeader(<%=configColumnByHeader%>, <%=endColumnIndex%>);
 
 	// Helper class to reduce the byte code footprint
 	class Helper_<%=cid%> {
 		
-		private de.cimt.talendcomp.google.sheet.GoogleSheetInput sheetInput = null;
+		private de.jlo.talendcomp.google.sheet.GoogleSheetInput sheetInput = null;
 		
-		public Helper_<%=cid%>(final de.cimt.talendcomp.google.sheet.GoogleSheetInput sheetInput) {
+		public Helper_<%=cid%>(final de.jlo.talendcomp.google.sheet.GoogleSheetInput sheetInput) {
 			this.sheetInput = sheetInput;
 		}
 	
@@ -338,12 +350,6 @@
 	}
 	while (<%=cid%>.next()) {
     	globalMap.put("<%=cid%>_CURRENT_ROW_INDEX", <%=cid%>.getCurrentRowIndex());
-<%  	if (limit != null && limit.isEmpty() == false) { %>
-		if (<%=limit%> > 0 && nb_line_<%=cid%> >= <%=limit%>) {
-		    <%=cid%>.debug("Limit reached at row: " + <%=cid%>.getCurrentRowIndex());
-			break;
-		}
-<%  	} %>
        	nb_line_<%=cid%>++;
 <%  	if (stopAtEmptyRow || skipEmptyRows) { %>
 		if (<%=cid%>_helper.hasCurrentRowValues() == false) {

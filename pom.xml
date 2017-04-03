@@ -2,14 +2,14 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>de.cimt.talendcomp.google</groupId>
-	<artifactId>cimt-talendcomp-google-sheet</artifactId>
-	<version>1.1</version>
+	<groupId>de.jlo.talendcomp.google</groupId>
+	<artifactId>jlo-talendcomp-google-sheet</artifactId>
+	<version>2.0</version>
 	<packaging>jar</packaging>
 
 	<name>talendcomp_tGoogleSheet</name>
 	<organization>
-		<name>cimt AG</name>
+		<name>Jan Lolling</name>
 	</organization>
 
 	<properties>
@@ -89,11 +89,21 @@
 				<groupId>de.cimt.talendcomp</groupId>
 				<artifactId>cimt-talendcomp-maven-plugin</artifactId>
 				<version>1.8</version>
-				<configuration>
-					<componentName>tGoogleSheetInput</componentName>
-				</configuration>
 				<executions>
 					<execution>
+						<id>tGoogleSheetInput</id>
+						<configuration>
+							<componentName>tGoogleSheetInput</componentName>
+						</configuration>
+						<goals>
+							<goal>component</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>tGoogleSheetOutput</id>
+						<configuration>
+							<componentName>tGoogleSheetOutput</componentName>
+						</configuration>
 						<goals>
 							<goal>component</goal>
 						</goals>
