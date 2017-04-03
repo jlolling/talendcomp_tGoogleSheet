@@ -42,6 +42,9 @@ public class GoogleSheetOutput extends GoogleSheet {
 	}
 
 	public void createSheetDocument() throws Exception {
+		if (documentTitle == null || documentTitle.trim().isEmpty()) {
+			throw new IllegalStateException("Title of the new Google Sheet is needed!");
+		}
 		Spreadsheet requestBody = new Spreadsheet();
 		SpreadsheetProperties properties = new SpreadsheetProperties();
 		properties.setTitle(documentTitle);

@@ -15,6 +15,7 @@
     INode node = (INode)codeGenArgument.getArgument();
     String cid = node.getUniqueName();
     String mainConnName = null;
+	boolean dieOnError = "true".equals(ElementParameterParser.getValue(node, "__DIE_ON_ERROR__"));
 	List< ? extends IConnection> conns = NodeUtil.getIncomingConnections(node, IConnectionCategory.DATA);
     if (conns != null && conns.size() > 0) {
     	IConnection conn = conns.get(0);
@@ -25,7 +26,11 @@
 		<%=cid%>.executeUpdate();
 	} catch (Exception e) {
 		globalMap.put("<%=cid%>_ERROR_MESSAGE", "Execute write request failed: " + e.getMessage());
-		throw e;
+<%		if (dieOnError) { %>
+			throw e;
+<%		} else { %>
+			e.printStackTrace();
+<%		} %>	
 	}
 	globalMap.put("<%=cid%>_NB_LINE", nb_line_<%=cid%>); 
 <%  } %>

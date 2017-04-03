@@ -36,7 +36,9 @@
 	    keepClientName = keepClientName + " + Thread.currentThread().getName()";
 	}
 	// Sheet
+    boolean createNew = "true".equals(ElementParameterParser.getValue(node, "__CREATE_NEW_FILE__"));
     String fileId = ElementParameterParser.getValue(node, "__FILE_ID__");
+    String fileTitle = ElementParameterParser.getValue(node, "__FILE_TITLE__");
 	String sheetName = ElementParameterParser.getValue(node, "__SHEET_NAME__");
 	String startRowIndex = ElementParameterParser.getValue(node, "__START_ROW_INDEX__");
 	if (startRowIndex == null && startRowIndex.trim().isEmpty()) {
@@ -127,7 +129,21 @@
 	<%=cid%>.reset();
 	<%=cid%>.setDebug(<%=debug%>);
 	// start Sheet handling
+<%	if (createNew) { %>
+	<%=cid%>.setDocumentTitle(<%=fileTitle%>);
+	try {
+		<%=cid%>.createSheetDocument();
+	} catch (Exception e) {
+		globalMap.put("<%=cid%>_ERROR_MESSAGE", "Create new document failed: " + e.getMessage());
+<%		if (dieOnError) { %>
+			throw e;
+<%		} else { %>
+			e.printStackTrace();
+<%		} %>	
+	}
+<%	} else { %>
 	<%=cid%>.setSpreadsheetId(<%=fileId%>);
+<%	} %>
 	globalMap.put("<%=cid%>_FILE_ID", <%=cid%>.getSpreadsheetId());
 	<%=cid%>.setSheetName(<%=sheetName%>);
 	<%=cid%>.setStartRowIndex(<%=startRowIndex%>);

@@ -97,4 +97,30 @@ public class TestGoogleSheetOutput extends TalendFakeJob {
 		assertEquals(countInserts, countUpdated);
 	}
 
+	@Test
+	public void testUpdateRowsCreateNewSS() throws Exception {
+		de.jlo.talendcomp.google.sheet.GoogleSheetOutput gs = (GoogleSheetOutput) globalMap.get("tGoogleSheetOutput_1");
+		gs.setDebug(true);
+		gs.setDocumentTitle("Testsheet-2");
+		gs.createSheetDocument();
+		gs.setSheetName("Sheet3");
+		gs.setStartRowIndex(30);
+		Date now = new Date();
+		int countInserts = 0;
+		for (int i = 100; i < 111; i++) {
+			gs.addValue("String_value_üöä_" + i, null);
+			Date dv = TalendDate.addDate(now, i, "dd");
+			gs.addValue(dv, null);
+			gs.addValue((i % 2) == 0 ? true : false, null);
+			gs.addValue(i, null);
+			gs.addValue(Long.valueOf(i), null);
+			gs.addValue(new BigDecimal(i + "." + i), null);
+			gs.addRow();
+			countInserts++;
+		}
+		gs.executeUpdate();
+		int countUpdated = gs.getCountWrittenRows();
+		assertEquals(countInserts, countUpdated);
+	}
+
 }

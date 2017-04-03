@@ -25,6 +25,7 @@
     	conn = conns.get(0);
    		mainConnector = conn.getConnectorName();
     } // if (conns != null && conns.size() > 0)
+	boolean dieOnError = "true".equals(ElementParameterParser.getValue(node, "__DIE_ON_ERROR__"));
 	List<IMetadataColumn> listColumns = new ArrayList<IMetadataColumn>();
 	IMetadataTable metadata = node.getMetadataFromConnector(mainConnector);
 	if (metadata != null) {
@@ -48,7 +49,11 @@
     } catch (Exception e) {
 		<%=cid%>.error("Add data row in line: " + nb_line_<%=cid%> + " failed: " + e.getMessage(), e);
     	globalMap.put("<%=cid%>_ERROR_MESSAGE", "Add data row in line: " + nb_line_<%=cid%> + " failed: " + e.getMessage());
-    	throw e;
+<%		if (dieOnError) { %>
+			throw e;
+<%		} else { %>
+			e.printStackTrace();
+<%		} %>	
     }
 <%  } else { %>
 	// no schema defined!
