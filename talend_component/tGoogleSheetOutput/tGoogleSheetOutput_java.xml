@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <COMPONENT> 
-  <HEADER PLATEFORM="ALL" SERIAL="" VERSION="2.0" STATUS="PROD" COMPATIBILITY="ALL" AUTHOR="cimt AG" RELEASE_DATE="20170403" STARTABLE="true" HAS_CONDITIONAL_OUTPUTS="false"> 
+  <HEADER PLATEFORM="ALL" SERIAL="" VERSION="2.0" STATUS="PROD" COMPATIBILITY="ALL" AUTHOR="cimt AG" RELEASE_DATE="20170603" STARTABLE="true" HAS_CONDITIONAL_OUTPUTS="false"> 
     <SIGNATURE/> 
   </HEADER>  
   <FAMILIES> 
@@ -73,8 +73,8 @@
     <PARAMETER NAME="DEBUG" FIELD="CHECK" NUM_ROW="20"> 
       <DEFAULT>false</DEFAULT> 
     </PARAMETER>  
-    <PARAMETER NAME="RELEASE_LABEL_20170403" FIELD="LABEL" COLOR="0;0;0" NUM_ROW="900">
-      <DEFAULT>Release: 2.0 build at: 20170403</DEFAULT>
+    <PARAMETER NAME="RELEASE_LABEL_20170603" FIELD="LABEL" COLOR="0;0;0" NUM_ROW="900">
+      <DEFAULT>Release: 2.0 build at: 20170603</DEFAULT>
     </PARAMETER>
   </ADVANCED_PARAMETERS>  
   <CODEGENERATION> 
@@ -83,7 +83,7 @@
       <IMPORT NAME="google-api-client" MODULE="google-api-client-1.22.0.jar" REQUIRED="true"/>
       <IMPORT NAME="google-oauth-client" MODULE="google-oauth-client-1.22.0.jar" REQUIRED="true"/>
       <IMPORT NAME="jsr305" MODULE="jsr305-1.3.9.jar" REQUIRED="true"/>
-      <IMPORT NAME="guava-jdk5" MODULE="guava-jdk5-17.0.jar" REQUIRED="true"/>
+      <IMPORT NAME="guava" MODULE="guava-20.0.jar" REQUIRED="true"/>
       <IMPORT NAME="google-oauth-client-jetty" MODULE="google-oauth-client-jetty-1.22.0.jar" REQUIRED="true"/>
       <IMPORT NAME="google-oauth-client-java6" MODULE="google-oauth-client-java6-1.22.0.jar" REQUIRED="true"/>
       <IMPORT NAME="jetty" MODULE="jetty-6.1.26.jar" REQUIRED="true"/>
