@@ -4,7 +4,6 @@
 
 	<groupId>de.jlo.talendcomp.google</groupId>
 	<artifactId>jlo-talendcomp-google-sheet</artifactId>
-	<version>2.1</version>
 	<packaging>jar</packaging>
 
 	<name>talendcomp_tGoogleSheet</name>
@@ -20,7 +19,7 @@
 		<dependency>
 			<groupId>com.google.api-client</groupId>
 			<artifactId>google-api-client</artifactId>
-			<version>1.22.0</version>
+			<version>1.23.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.google.guava</groupId>
@@ -36,12 +35,12 @@
 		<dependency>
 			<groupId>com.google.oauth-client</groupId>
 			<artifactId>google-oauth-client-jetty</artifactId>
-			<version>1.22.0</version>
+			<version>1.23.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.apis</groupId>
 			<artifactId>google-api-services-sheets</artifactId>
-			<version>v4-rev459-1.22.0</version>
+			<version>v4-rev496-1.23.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
@@ -57,7 +56,7 @@
 		<dependency>
 			<groupId>com.google.http-client</groupId>
 			<artifactId>google-http-client-jackson2</artifactId>
-			<version>1.22.0</version>
+			<version>1.23.0</version>
 			<scope>compile</scope>
 			<exclusions>
 				<exclusion>
@@ -124,4 +123,5 @@
 		</plugins>
 	</build>
 	
+	<version>3.0</version>
 </project>

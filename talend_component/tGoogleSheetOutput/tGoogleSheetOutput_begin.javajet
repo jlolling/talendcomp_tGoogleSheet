@@ -5,9 +5,6 @@
 		org.talend.core.model.process.ElementParameterParser 
 		org.talend.core.model.metadata.IMetadataTable 
 		org.talend.core.model.metadata.IMetadataColumn 
-		org.talend.core.model.process.IConnection
-		org.talend.core.model.process.IConnectionCategory
-		org.talend.core.model.utils.NodeUtil
 		java.util.List
 		java.util.ArrayList
     	java.util.Map
@@ -25,7 +22,6 @@
 	String keyFile = ElementParameterParser.getValue(node, "__KEY_FILE__");
 	String clientSecretFile = ElementParameterParser.getValue(node, "__CLIENT_SECRET_FILE__");
 	String userEmail = ElementParameterParser.getValue(node, "__USER_ACCOUNT_EMAIL__");
-	String maxAttempts = ElementParameterParser.getValue(node, "__MAX_ATTEMPTS__");
 	String timeout = ElementParameterParser.getValue(node, "__TIMEOUT_IN_SEC__");
 	String timeOffset = ElementParameterParser.getValue(node, "__TIME_OFFSET__");
 	String keepClient = ElementParameterParser.getValue(node, "__KEEP_CLIENT__");
@@ -41,28 +37,36 @@
     String fileTitle = ElementParameterParser.getValue(node, "__FILE_TITLE__");
 	String sheetName = ElementParameterParser.getValue(node, "__SHEET_NAME__");
 	String startRowIndex = ElementParameterParser.getValue(node, "__START_ROW_INDEX__");
-	if (startRowIndex == null && startRowIndex.trim().isEmpty()) {
+	if (startRowIndex == null || startRowIndex.trim().isEmpty()) {
 		startRowIndex = "null";
 	}
 	String startColumnIndex = ElementParameterParser.getValue(node, "__START_COLUMN_INDEX__");
-	if (startColumnIndex == null && startColumnIndex.trim().isEmpty()) {
+	if (startColumnIndex == null || startColumnIndex.trim().isEmpty()) {
 		startColumnIndex = "null";
 	}
-    String defaultLocale = ElementParameterParser.getValue(node, "__DEFAULT_LOCALE__");
-    IConnection conn = null;
-    String mainConnector = null;
-	List< ? extends IConnection> conns = NodeUtil.getIncomingConnections(node, IConnectionCategory.DATA);
-    if (conns != null && conns.size() > 0) {
-    	conn = conns.get(0);
-   		mainConnector = conn.getConnectorName();
-    } // if (conns != null && conns.size() > 0)
-	List<IMetadataColumn> listColumns = new ArrayList<IMetadataColumn>();
-	IMetadataTable metadata = node.getMetadataFromConnector(mainConnector);
-	if (metadata != null) {
-   		listColumns = metadata.getListColumns();
-	} // if (metadata != null)
 	boolean dieOnError = "true".equals(ElementParameterParser.getValue(node, "__DIE_ON_ERROR__"));
 	boolean debug = "true".equals(ElementParameterParser.getValue(node, "__DEBUG__"));
+	boolean addHeader = "true".equals(ElementParameterParser.getValue(node, "__ADD_HEADER_ROW__"));
+	List<IMetadataColumn> listColumns = new ArrayList<IMetadataColumn>(); // dummy
+	List<IMetadataTable> metadatas = node.getMetadataList();
+	if (metadatas != null && metadatas.size() > 0) {
+    	IMetadataTable metadata = metadatas.get(0);
+    	if (metadata != null) {
+    		listColumns = metadata.getListColumns();
+		}
+	}
+	List<Map<String, String>> headerList = (List<Map<String,String>>) ElementParameterParser.getObjectValue(node, "__COLUMN_CONFIG__");
+	Map<Integer, String> headerMap = new HashMap<Integer, String>();
+	int columnIndex = 0;
+	for (Map<String, String> entry : headerList) {
+		String header = entry.get("HEADER");
+		if (header != null && header.isEmpty() == false) {
+			headerMap.put(columnIndex, header);
+		} else {
+			headerMap.put(columnIndex, "\"" + ((IMetadataColumn) listColumns.get(columnIndex)).getLabel() + "\"");
+		}
+		columnIndex++;
+	}
 %>
     // start creating client
 <%	if ("true".equals(keepClient)) {
@@ -149,4 +153,22 @@
 	<%=cid%>.setStartRowIndex(<%=startRowIndex%>);
 	<%=cid%>.setStartColumnName(<%=startColumnIndex%>);
 	int nb_line_<%=cid%> = 0;
-	
+<%	if (addHeader) {
+		for (int i = 0; i < listColumns.size(); i++) {
+			String header = headerMap.get(i); %>
+    <%=cid%>.addValue(<%=header%>, null);
+<%		} %>
+    // add header record to request
+    try {
+		<%=cid%>.addRow();
+    	nb_line_<%=cid%>++;
+    } catch (Exception e) {
+		<%=cid%>.error("Add header row in line: " + nb_line_<%=cid%> + " failed: " + e.getMessage(), e);
+    	globalMap.put("<%=cid%>_ERROR_MESSAGE", "Add header row in line: " + nb_line_<%=cid%> + " failed: " + e.getMessage());
+<%		if (dieOnError) { %>
+			throw e;
+<%		} else { %>
+			e.printStackTrace();
+<%		} %>	
+    }
+<%	} %>

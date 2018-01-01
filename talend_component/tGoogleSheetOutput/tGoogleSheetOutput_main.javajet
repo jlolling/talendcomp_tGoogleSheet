@@ -10,8 +10,6 @@
 		org.talend.core.model.utils.NodeUtil
 		java.util.List
 		java.util.ArrayList
-    	java.util.Map
-    	java.util.HashMap
 	" 
 %>
 <% 
@@ -25,23 +23,21 @@
     	conn = conns.get(0);
    		mainConnector = conn.getConnectorName();
     } // if (conns != null && conns.size() > 0)
-	boolean dieOnError = "true".equals(ElementParameterParser.getValue(node, "__DIE_ON_ERROR__"));
 	List<IMetadataColumn> listColumns = new ArrayList<IMetadataColumn>();
 	IMetadataTable metadata = node.getMetadataFromConnector(mainConnector);
 	if (metadata != null) {
    		listColumns = metadata.getListColumns();
 	} // if (metadata != null)
+	boolean dieOnError = "true".equals(ElementParameterParser.getValue(node, "__DIE_ON_ERROR__"));
 %>
-	<%  int columnIndex = 0;
-    if (conn != null) {
+<%	if (conn != null) {
         for (IMetadataColumn col : listColumns) { 
         	String pattern = col.getPattern();
         	if (pattern == null || pattern.trim().isEmpty()) { 
         		pattern = "null";
         	} %>
     <%=cid%>.addValue(<%=conn.getName()%>.<%=col.getLabel()%>, <%=pattern%>);
-<%          columnIndex++;
-        } %>
+<%		} %>
     // add record to request
     try {
 		<%=cid%>.addRow();
