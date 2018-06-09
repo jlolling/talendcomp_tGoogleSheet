@@ -25,7 +25,7 @@ public class TestGoogleSheetOutput extends TalendFakeJob {
 			tGoogleSheetOutput_1.setUseApplicationClientID(true);
 			// setup client with client-Id for native applications
 			tGoogleSheetOutput_1.setAccountEmail("jan.lolling@gmail.com");
-			tGoogleSheetOutput_1.setClientSecretFile("/Volumes/Data/Talend/testdata/ga/config/client_secret_503880615382-ve9ac3176d2acre79tevkirt0v6pa91v.apps.googleusercontent.com.json");
+			tGoogleSheetOutput_1.setClientSecretFile("/Data/Talend/testdata/ga/config/client_secret_503880615382-ve9ac3176d2acre79tevkirt0v6pa91v.apps.googleusercontent.com.json");
 			tGoogleSheetOutput_1.setTimeoutInSeconds(240);
 			// prevent token validation problems caused by time
 			// differences between own host and Google
@@ -74,14 +74,14 @@ public class TestGoogleSheetOutput extends TalendFakeJob {
 	@Test
 	public void testUpdateRows() throws Exception {
 		de.jlo.talendcomp.google.sheet.GoogleSheetOutput gs = (GoogleSheetOutput) globalMap.get("tGoogleSheetOutput_1");
-		gs.setDebug(true);
+		gs.setDebug(false);
 		String spreadsheetId = "1unqwDlz1GrPpVUjET-JkUA0FaXkaqMGDX2UV6ll8at0";
 		gs.setSpreadsheetId(spreadsheetId);
 		gs.setSheetName("Sheet3");
 		gs.setStartRowIndex(30);
 		Date now = new Date();
 		int countInserts = 0;
-		for (int i = 100; i < 111; i++) {
+		for (int i = 1; i < 50000; i++) {
 			gs.addValue("String_value_üöä_" + i, null);
 			Date dv = TalendDate.addDate(now, i, "dd");
 			gs.addValue(dv, null);
@@ -100,14 +100,14 @@ public class TestGoogleSheetOutput extends TalendFakeJob {
 	@Test
 	public void testUpdateRowsCreateNewSS() throws Exception {
 		de.jlo.talendcomp.google.sheet.GoogleSheetOutput gs = (GoogleSheetOutput) globalMap.get("tGoogleSheetOutput_1");
-		gs.setDebug(true);
+		gs.setDebug(false);
 		gs.setDocumentTitle("Testsheet-2");
 		gs.createSheetDocument();
 		gs.setSheetName("Sheet3");
 		gs.setStartRowIndex(30);
 		Date now = new Date();
 		int countInserts = 0;
-		for (int i = 100; i < 111; i++) {
+		for (int i = 1; i < 50000; i++) {
 			gs.addValue("String_value_üöä_" + i, null);
 			Date dv = TalendDate.addDate(now, i, "dd");
 			gs.addValue(dv, null);

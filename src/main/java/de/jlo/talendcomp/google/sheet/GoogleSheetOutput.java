@@ -10,6 +10,8 @@ import com.google.api.services.sheets.v4.Sheets.Spreadsheets.BatchUpdate;
 import com.google.api.services.sheets.v4.model.AddSheetRequest;
 import com.google.api.services.sheets.v4.model.AppendValuesResponse;
 import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetRequest;
+import com.google.api.services.sheets.v4.model.BatchUpdateValuesRequest;
+import com.google.api.services.sheets.v4.model.BatchUpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.GridProperties;
 import com.google.api.services.sheets.v4.model.Request;
 import com.google.api.services.sheets.v4.model.Sheet;
@@ -139,16 +141,24 @@ public class GoogleSheetOutput extends GoogleSheet {
 		int endColumnIndex = CellUtil.convertColStringToIndex(startColumnName) + maxRowWith;
 		range = CellUtil.buildRange(getSheetName(), startColumnName, endColumnIndex, startRowIndex, lastRowIndex);
 		initializeSheet();
-		Sheets.Spreadsheets.Values.Update request = getService().spreadsheets().values().update(
+		BatchUpdateValuesRequest buvr = new BatchUpdateValuesRequest();
+		buvr.setValueInputOption("RAW");
+		List<ValueRange> lv = new ArrayList<>();
+		// finally set the data range
+		getValueRange().setRange(range);
+		lv.add(getValueRange());
+		buvr.setData(lv);
+		Sheets.Spreadsheets.Values.BatchUpdate request = getService().spreadsheets().values().batchUpdate(
 				getSpreadsheetId(),
-				range, 
-				getValueRange());
+				buvr);
 		request.setPrettyPrint(false);
 		request.setPp(false);
-		request.setValueInputOption("RAW");
-		UpdateValuesResponse response = (UpdateValuesResponse) execute(request);
-		countUpdatedRows = response.getUpdatedRows();
-		updatedRange = response.getUpdatedRange();
+		BatchUpdateValuesResponse response = (BatchUpdateValuesResponse) execute(request);
+		countUpdatedRows = response.getTotalUpdatedRows();
+		List<UpdateValuesResponse> luvr = response.getResponses();
+		if (luvr != null && luvr.size() > 0) {
+			updatedRange = response.getResponses().get(0).getUpdatedRange();
+		}
 	}
 
 	public void executeAppend() throws Exception {
