@@ -79,12 +79,6 @@
 			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
-        <dependency>
-		    <groupId>de.cimt.talendcomp.test</groupId>
-		    <artifactId>talend-fake-job</artifactId>
-		    <version>0.9</version>
-		    <scope>test</scope>
-		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>

@@ -23,6 +23,9 @@ import com.google.api.services.sheets.v4.model.ValueRange;
 
 public class GoogleSheetOutput extends GoogleSheet {
 	
+	private static final String VALUE_INPUT_OPTION_RAW = "RAW";
+	private static final String INSERT_DATA_OPTION_OVERWRITE = "OVERWRITE";
+	private static final String INSERT_DATA_OPTION_INSERT_ROWS = "INSERT_ROWS";
 	private int countRows = 0;
 	private String range = null;
 	private int startRowIndex = 1;
@@ -142,7 +145,7 @@ public class GoogleSheetOutput extends GoogleSheet {
 		range = CellUtil.buildRange(getSheetName(), startColumnName, endColumnIndex, startRowIndex, lastRowIndex);
 		initializeSheet();
 		BatchUpdateValuesRequest buvr = new BatchUpdateValuesRequest();
-		buvr.setValueInputOption("RAW");
+		buvr.setValueInputOption(VALUE_INPUT_OPTION_RAW);
 		List<ValueRange> lv = new ArrayList<>();
 		// finally set the data range
 		getValueRange().setRange(range);
@@ -178,8 +181,8 @@ public class GoogleSheetOutput extends GoogleSheet {
 				getValueRange());
 		request.setPrettyPrint(false);
 		request.setPp(false);
-		request.setValueInputOption("RAW");
-		request.setInsertDataOption(appendOnExistingData ? "INSERT_ROWS" : "OVERWRITE");
+		request.setValueInputOption(VALUE_INPUT_OPTION_RAW);
+		request.setInsertDataOption(appendOnExistingData ? INSERT_DATA_OPTION_INSERT_ROWS : INSERT_DATA_OPTION_OVERWRITE);
 		AppendValuesResponse response = (AppendValuesResponse) execute(request);
 		UpdateValuesResponse ur = response.getUpdates();
 		if (ur != null) {

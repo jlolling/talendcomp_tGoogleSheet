@@ -5,14 +5,17 @@ import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import de.cimt.talendcomp.test.TalendFakeJob;
 import routines.TalendDate;
 
-public class TestGoogleSheetOutput extends TalendFakeJob {
+public class TestGoogleSheetOutput {
+	
+	private Map<String, Object> globalMap = new HashMap<>();
 
 	@Before
 	public void testIntializeClient() throws Exception {
