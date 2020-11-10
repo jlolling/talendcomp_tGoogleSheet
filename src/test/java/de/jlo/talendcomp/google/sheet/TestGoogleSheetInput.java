@@ -5,15 +5,16 @@ import static org.junit.Assert.assertTrue;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import de.cimt.talendcomp.test.TalendFakeJob;
-import de.jlo.talendcomp.google.sheet.GoogleSheetInput;
+public class TestGoogleSheetInput {
 
-public class TestGoogleSheetInput extends TalendFakeJob {
-
+	private Map<String, Object> globalMap = new HashMap<>();
+	
 	@Before
 	public void testIntializeClient() throws Exception {
 		// use own client
@@ -25,7 +26,7 @@ public class TestGoogleSheetInput extends TalendFakeJob {
 			tGoogleSheetInput_1.setUseApplicationClientID(true);
 			// setup client with client-Id for native applications
 			tGoogleSheetInput_1.setAccountEmail("jan.lolling@gmail.com");
-			tGoogleSheetInput_1.setClientSecretFile("/Volumes/Data/Talend/testdata/ga/config/client_secret_503880615382-ve9ac3176d2acre79tevkirt0v6pa91v.apps.googleusercontent.com.json");
+			tGoogleSheetInput_1.setClientSecretFile("/Data/Talend/testdata/ga/config/client_secret_503880615382-n8ti68l59e04hpuvljrbe6hml9ov5jch.apps.googleusercontent.com.json");
 			tGoogleSheetInput_1.setTimeoutInSeconds(240);
 			// prevent token validation problems caused by time
 			// differences between own host and Google
@@ -36,6 +37,7 @@ public class TestGoogleSheetInput extends TalendFakeJob {
 				tGoogleSheetInput_1.initializeClient();
 			} catch (Exception e) {
 				globalMap.put("tGoogleSheetInput_1_ERROR_MESSAGE", e.getMessage());
+				e.printStackTrace();
 				throw e;
 			}
 		} // (tGoogleDrive_2 == null)

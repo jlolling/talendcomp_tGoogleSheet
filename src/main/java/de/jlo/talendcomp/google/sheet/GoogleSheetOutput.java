@@ -41,6 +41,7 @@ public class GoogleSheetOutput extends GoogleSheet {
 	private List<Object> row = new ArrayList<Object>();
 	private SimpleDateFormat dateFormat = new SimpleDateFormat();
 	private boolean appendOnExistingData = false;
+	private String valueInputOption = VALUE_INPUT_OPTION_RAW;
 
 	public GoogleSheetOutput() throws Exception {
 		super();
@@ -145,7 +146,7 @@ public class GoogleSheetOutput extends GoogleSheet {
 		range = CellUtil.buildRange(getSheetName(), startColumnName, endColumnIndex, startRowIndex, lastRowIndex);
 		initializeSheet();
 		BatchUpdateValuesRequest buvr = new BatchUpdateValuesRequest();
-		buvr.setValueInputOption(VALUE_INPUT_OPTION_RAW);
+		buvr.setValueInputOption(valueInputOption);
 		List<ValueRange> lv = new ArrayList<>();
 		// finally set the data range
 		getValueRange().setRange(range);
@@ -155,7 +156,6 @@ public class GoogleSheetOutput extends GoogleSheet {
 				getSpreadsheetId(),
 				buvr);
 		request.setPrettyPrint(false);
-		request.setPp(false);
 		BatchUpdateValuesResponse response = (BatchUpdateValuesResponse) execute(request);
 		countUpdatedRows = response.getTotalUpdatedRows();
 		List<UpdateValuesResponse> luvr = response.getResponses();
@@ -180,8 +180,7 @@ public class GoogleSheetOutput extends GoogleSheet {
 				range, 
 				getValueRange());
 		request.setPrettyPrint(false);
-		request.setPp(false);
-		request.setValueInputOption(VALUE_INPUT_OPTION_RAW);
+		request.setValueInputOption(valueInputOption);
 		request.setInsertDataOption(appendOnExistingData ? INSERT_DATA_OPTION_INSERT_ROWS : INSERT_DATA_OPTION_OVERWRITE);
 		AppendValuesResponse response = (AppendValuesResponse) execute(request);
 		UpdateValuesResponse ur = response.getUpdates();
@@ -244,6 +243,20 @@ public class GoogleSheetOutput extends GoogleSheet {
 
 	public void setAppendOnExistingData(boolean appendOnExistingData) {
 		this.appendOnExistingData = appendOnExistingData;
+	}
+
+	public String getValueInputOption() {
+		return valueInputOption;
+	}
+
+	public void setValueInputOption(String valueInputOption) {
+		if (valueInputOption != null && valueInputOption.trim().isEmpty() == false) {
+			if ("INPUT_VALUE_OPTION_UNSPECIFIED".equals(valueInputOption) || "RAW".equals(valueInputOption) || "USER_ENTERED".equals(valueInputOption)) {
+				this.valueInputOption = valueInputOption;
+			} else {
+				throw new IllegalArgumentException("Invalid value for valueInputOption: " + valueInputOption + ". Only: INPUT_VALUE_OPTION_UNSPECIFIED or RAW or USER_ENTERED allowed");
+			}
+		}
 	}
 
 }

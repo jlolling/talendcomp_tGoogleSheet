@@ -59,7 +59,6 @@ public class GoogleSheetInput extends GoogleSheet {
 		debug("    range: " + range);
 		Values.Get reqGetValues = getService().spreadsheets().values().get(getSpreadsheetId(), range);
 		reqGetValues.setPrettyPrint(false);
-		reqGetValues.setPp(false);
 		reqGetValues.setMajorDimension("ROWS");
 		reqGetValues.setDateTimeRenderOption("FORMATTED_STRING");
 		reqGetValues.setValueRenderOption("UNFORMATTED_VALUE");

@@ -45,7 +45,6 @@
 		startColumnIndex = "null";
 	}
 	boolean dieOnError = "true".equals(ElementParameterParser.getValue(node, "__DIE_ON_ERROR__"));
-	boolean debug = "true".equals(ElementParameterParser.getValue(node, "__DEBUG__"));
 	boolean addHeader = "true".equals(ElementParameterParser.getValue(node, "__ADD_HEADER_ROW__"));
 	List<IMetadataColumn> listColumns = new ArrayList<IMetadataColumn>(); // dummy
 	List<IMetadataTable> metadatas = node.getMetadataList();
@@ -67,6 +66,10 @@
 		}
 		columnIndex++;
 	}
+	String valueInputOption = ElementParameterParser.getValue(node, "__VALUE_INPUT_OPTION__");
+	if (valueInputOption == null) {
+		valueInputOption = "null";
+	}
 %>
     // start creating client
 <%	if ("true".equals(keepClient)) {
@@ -78,11 +81,9 @@
 		} %>
 	de.jlo.talendcomp.google.sheet.GoogleSheetOutput <%=cid%> = (de.jlo.talendcomp.google.sheet.GoogleSheetOutput) de.jlo.talendcomp.google.sheet.GoogleSheet.getFromCache(<%=email%> + <%=keepClientName%> + "<%=cid%>" + jobName);
 	if (<%=cid%> == null) {
-		<%=cid%>.setDebug(<%=debug%>);
 		<%=cid%> = new de.jlo.talendcomp.google.sheet.GoogleSheetOutput();
 <%	} else { // if ("true".equals(keepClient)) %>
 	    de.jlo.talendcomp.google.sheet.GoogleSheetOutput <%=cid%> = new de.jlo.talendcomp.google.sheet.GoogleSheetOutput();
-		<%=cid%>.setDebug(<%=debug%>);
 <%	} // if ("true".equals(keepClient)) %>
 <%	if (applicationName != null && applicationName.trim().isEmpty() == false) { %>
 		<%=cid%>.setApplicationName(<%=applicationName%>);
@@ -131,7 +132,6 @@
 	}
 <%	} // if ("true".equals(keepClient)) %>
 	<%=cid%>.reset();
-	<%=cid%>.setDebug(<%=debug%>);
 	// start Sheet handling
 <%	if (createNew) { %>
 	<%=cid%>.setDocumentTitle(<%=fileTitle%>);
@@ -152,6 +152,7 @@
 	<%=cid%>.setSheetName(<%=sheetName%>);
 	<%=cid%>.setStartRowIndex(<%=startRowIndex%>);
 	<%=cid%>.setStartColumnName(<%=startColumnIndex%>);
+	<%=cid%>.setValueInputOption("<%=valueInputOption%>");
 	int nb_line_<%=cid%> = 0;
 <%	if (addHeader) {
 		for (int i = 0; i < listColumns.size(); i++) {

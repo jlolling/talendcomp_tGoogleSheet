@@ -4,6 +4,7 @@
 
 	<groupId>de.jlo.talendcomp.google</groupId>
 	<artifactId>jlo-talendcomp-google-sheet</artifactId>
+	<version>4.0</version>
 	<packaging>jar</packaging>
 
 	<name>talendcomp_tGoogleSheet</name>
@@ -35,28 +36,28 @@
 		<dependency>
 			<groupId>com.google.oauth-client</groupId>
 			<artifactId>google-oauth-client-jetty</artifactId>
-			<version>1.23.0</version>
+			<version>1.31.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.apis</groupId>
 			<artifactId>google-api-services-sheets</artifactId>
-			<version>v4-rev496-1.23.0</version>
+			<version>v4-rev20200616-1.30.10</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
-			<version>4.3.6</version>
+			<version>4.5.10</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>2.7.5</version>
+			<version>2.10.0</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.google.http-client</groupId>
 			<artifactId>google-http-client-jackson2</artifactId>
-			<version>1.23.0</version>
+			<version>1.31.0</version>
 			<scope>compile</scope>
 			<exclusions>
 				<exclusion>
@@ -80,10 +81,9 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
-			<scope>provided</scope>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.30</version>
 		</dependency>
 	</dependencies>
 
@@ -99,7 +99,12 @@
 			<plugin>
 				<groupId>de.cimt.talendcomp</groupId>
 				<artifactId>cimt-talendcomp-maven-plugin</artifactId>
-				<version>1.8</version>
+				<version>2.1</version>
+				<configuration>
+					<copyFromSourceBaseDir>${project.basedir}/talend_component</copyFromSourceBaseDir>
+					<componentBaseDir>${project.basedir}/talend_component</componentBaseDir>
+					<studioUserComponentFolder>/Data/Talend/Studio/talend_user_components</studioUserComponentFolder>
+				</configuration>
 				<executions>
 					<execution>
 						<id>tGoogleSheetInput</id>
@@ -124,5 +129,4 @@
 		</plugins>
 	</build>
 	
-	<version>3.0</version>
 </project>

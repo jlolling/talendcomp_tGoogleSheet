@@ -11,8 +11,6 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
-import routines.TalendDate;
-
 public class TestGoogleSheetOutput {
 	
 	private Map<String, Object> globalMap = new HashMap<>();
@@ -28,7 +26,7 @@ public class TestGoogleSheetOutput {
 			tGoogleSheetOutput_1.setUseApplicationClientID(true);
 			// setup client with client-Id for native applications
 			tGoogleSheetOutput_1.setAccountEmail("jan.lolling@gmail.com");
-			tGoogleSheetOutput_1.setClientSecretFile("/Data/Talend/testdata/ga/config/client_secret_503880615382-ve9ac3176d2acre79tevkirt0v6pa91v.apps.googleusercontent.com.json");
+			tGoogleSheetOutput_1.setClientSecretFile("/Data/Talend/testdata/ga/config/client_secret_503880615382-a7rop1easl2maqbul8u7arnd42hgiolu.apps.googleusercontent.com.json");
 			tGoogleSheetOutput_1.setTimeoutInSeconds(240);
 			// prevent token validation problems caused by time
 			// differences between own host and Google
@@ -56,11 +54,10 @@ public class TestGoogleSheetOutput {
 		gs.setSpreadsheetId(spreadsheetId);
 		gs.setSheetName("Sheet3");
 		gs.setStartRowIndex(1);
-		Date now = new Date();
 		int countInserts = 0;
 		for (int i = 1; i < 10; i++) {
 			gs.addValue("String_value_üöä_" + i, null);
-			Date dv = TalendDate.addDate(now, i, "dd");
+			Date dv = new Date();
 			gs.addValue(dv, null);
 			gs.addValue((i % 2) == 0 ? true : false, null);
 			gs.addValue(i, null);
@@ -86,7 +83,7 @@ public class TestGoogleSheetOutput {
 		int countInserts = 0;
 		for (int i = 1; i < 50000; i++) {
 			gs.addValue("String_value_üöä_" + i, null);
-			Date dv = TalendDate.addDate(now, i, "dd");
+			Date dv = new Date();
 			gs.addValue(dv, null);
 			gs.addValue((i % 2) == 0 ? true : false, null);
 			gs.addValue(i, null);
@@ -108,11 +105,10 @@ public class TestGoogleSheetOutput {
 		gs.createSheetDocument();
 		gs.setSheetName("Sheet3");
 		gs.setStartRowIndex(30);
-		Date now = new Date();
 		int countInserts = 0;
 		for (int i = 1; i < 50000; i++) {
 			gs.addValue("String_value_üöä_" + i, null);
-			Date dv = TalendDate.addDate(now, i, "dd");
+			Date dv = new Date();
 			gs.addValue(dv, null);
 			gs.addValue((i % 2) == 0 ? true : false, null);
 			gs.addValue(i, null);

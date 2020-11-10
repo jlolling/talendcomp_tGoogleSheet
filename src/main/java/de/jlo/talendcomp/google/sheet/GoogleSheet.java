@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
@@ -39,7 +39,7 @@ import com.google.api.services.sheets.v4.model.Spreadsheet;
 
 public abstract class GoogleSheet {
 	
-	private Logger logger = null;
+	private static Logger logger = LoggerFactory.getLogger(GoogleSheet.class);
 	private static final Map<String, GoogleSheet> clientCache = new HashMap<String, GoogleSheet>();
 	private HttpTransport HTTP_TRANSPORT = null;
 	private final JsonFactory JSON_FACTORY = new JacksonFactory();
@@ -124,7 +124,7 @@ public abstract class GoogleSheet {
 				.setTransport(HTTP_TRANSPORT)
 				.setJsonFactory(JSON_FACTORY)
 				.setServiceAccountId(accountEmail)
-				.setServiceAccountScopes(Arrays.asList(SheetsScopes.SPREADSHEETS))
+				.setServiceAccountScopes(Arrays.asList(SheetsScopes.SPREADSHEETS,SheetsScopes.DRIVE_FILE,SheetsScopes.DRIVE))
 				.setServiceAccountPrivateKeyFromP12File(keyFile)
 				.setClock(new Clock() {
 					@Override
@@ -173,7 +173,7 @@ public abstract class GoogleSheet {
 				HTTP_TRANSPORT, 
 				JSON_FACTORY, 
 				clientSecrets, 
-				Arrays.asList(SheetsScopes.SPREADSHEETS))
+				Arrays.asList(SheetsScopes.SPREADSHEETS,SheetsScopes.DRIVE_FILE,SheetsScopes.DRIVE))
 			.setDataStoreFactory(fdsf)
 			.setClock(new Clock() {
 				@Override
@@ -220,25 +220,6 @@ public abstract class GoogleSheet {
 	     		.build();
 	}
 	
-	public void setDebug(boolean debug) {
-		if (logger != null) {
-			if (debug) {
-				logger.setLevel(Level.DEBUG);
-			} else {
-				logger.setLevel(Level.INFO);
-			}
-		}
-		this.debug = debug;
-	}
-
-	public boolean isDebugEnabled() {
-		if (logger != null) {
-			return logger.isDebugEnabled();
-		} else {
-			return debug;
-		}
-	}
-	
 	public void info(String message) {
 		if (logger != null) {
 			logger.info(message);
@@ -279,10 +260,6 @@ public abstract class GoogleSheet {
 		} else {
 			System.err.println("ERROR: " + message);
 		}
-	}
-
-	public void setLogger(Logger logger) {
-		this.logger = logger;
 	}
 
 	/**
@@ -358,12 +335,12 @@ public abstract class GoogleSheet {
 		for (currentAttempt = 0; currentAttempt < maxRetriesInCaseOfErrors; currentAttempt++) {
 			errorCode = 0;
 			try {
-				if (isDebugEnabled()) {
+				if (logger.isDebugEnabled()) {
 					debug("Request: " + request.toString());
 					debug("Request body: " + request.getJsonContent());
 				}
 				response = (GenericJson) request.execute();
-				if (isDebugEnabled()) {
+				if (logger.isDebugEnabled()) {
 					debug("Response: " + response.toString());
 				}
 				break;
@@ -431,7 +408,6 @@ public abstract class GoogleSheet {
 	public List<Sheet> listSheets() throws Exception {
 		Spreadsheets.Get reqGetSheets = getService().spreadsheets().get(getSpreadsheetId());
 		reqGetSheets.setPrettyPrint(false);
-		reqGetSheets.setPp(false);
 		reqGetSheets.setIncludeGridData(false);
 		Spreadsheet spreadSheet = (Spreadsheet) execute(reqGetSheets);
 		List<Sheet> listSheets = spreadSheet.getSheets();
