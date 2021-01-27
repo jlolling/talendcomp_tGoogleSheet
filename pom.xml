@@ -4,7 +4,7 @@
 
 	<groupId>de.jlo.talendcomp.google</groupId>
 	<artifactId>jlo-talendcomp-google-sheet</artifactId>
-	<version>4.0</version>
+	<version>4.1</version>
 	<packaging>jar</packaging>
 
 	<name>talendcomp_tGoogleSheet</name>
@@ -103,7 +103,7 @@
 				<configuration>
 					<copyFromSourceBaseDir>${project.basedir}/talend_component</copyFromSourceBaseDir>
 					<componentBaseDir>${project.basedir}/talend_component</componentBaseDir>
-					<studioUserComponentFolder>/Data/Talend/Studio/talend_user_components</studioUserComponentFolder>
+					<studioUserComponentFolder>/Users/jan/development/talend_user_components</studioUserComponentFolder>
 				</configuration>
 				<executions>
 					<execution>

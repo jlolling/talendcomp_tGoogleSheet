@@ -154,6 +154,9 @@ public abstract class GoogleSheet {
 		} catch (Throwable e) {}
 		// Checks that the defaults have been replaced (Default =
 		// "Enter X here").
+		if (clientSecrets.getInstalled() == null) {
+			throw new IllegalStateException("The credentials are not suitable for this component. Please take car you choose the authentication type for Desktop (formally known as Installed Applications. The authentication type for Web applications does not work here.");
+		}
 		if (clientSecrets.getDetails().getClientId().startsWith("Enter")
 				|| clientSecrets
 					.getDetails()
