@@ -78,7 +78,7 @@ public abstract class GoogleSheet {
 	
 	protected Sheets getService() {
 		if (sheetService == null) {
-			throw new IllegalStateException("Sheets service not initialized! Call initializeService() before.");
+			throw new IllegalStateException("Sheets service not initialized! Call initializeClient() before.");
 		}
 		return sheetService;
 	}

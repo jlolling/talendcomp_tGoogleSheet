@@ -64,6 +64,9 @@ public class GoogleSheetInput extends GoogleSheet {
 		reqGetValues.setValueRenderOption("UNFORMATTED_VALUE");
 		ValueRange valueRange = (ValueRange) execute(reqGetValues);
 		values = valueRange.getValues();
+		if (values == null) {
+			throw new Exception("No values received! error-code=" + getLastHttpStatusCode() + " error-message=" + getLastHttpStatusMessage());
+		}
 		countRows = values.size();
 		debug("    count received rows: " + countRows);
 		currentRow = null;
