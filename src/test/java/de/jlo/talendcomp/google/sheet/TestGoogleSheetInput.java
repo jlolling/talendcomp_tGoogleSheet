@@ -56,9 +56,9 @@ public class TestGoogleSheetInput {
 			tGoogleSheetInput_1.setUseServiceAccount(true);
 			tGoogleSheetInput_1.setUseApplicationClientID(false);
 			// setup client with client-Id for native applications
-			tGoogleSheetInput_1.setAccountEmail("digitalreporting-gsheet@digirep-gsheet-to-datalab.iam.gserviceaccount.com");
+			tGoogleSheetInput_1.setAccountEmail("yyyyy");
 			tGoogleSheetInput_1.setKeyFile(
-					"/Users/jan/development/testdata/ga/config/digirep-gsheet-to-datalab-f42f5c8957c4.p12");
+					"xxxxxx");
 			tGoogleSheetInput_1.setTimeoutInSeconds(240);
 			// prevent token validation problems caused by time
 			// differences between own host and Google
