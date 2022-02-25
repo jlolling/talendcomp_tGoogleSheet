@@ -136,7 +136,6 @@
       <IMPORT NAME="jackson-annotations" MODULE="jackson-annotations-2.13.1.jar" MVN="mvn:org.talend.libraries/jackson-annotations-2.13.1/6.0.0-SNAPSHOT" REQUIRED="true"/>
       <IMPORT NAME="jackson-core" MODULE="jackson-core-2.13.1.jar" MVN="mvn:org.talend.libraries/jackson-core-2.13.1/6.0.0-SNAPSHOT" REQUIRED="true"/>
       <IMPORT NAME="google-http-client-jackson2" MODULE="google-http-client-jackson2-1.41.4.jar" MVN="mvn:org.talend.libraries/google-http-client-jackson2-1.41.4/6.0.0-SNAPSHOT" REQUIRED="true"/>
-      <IMPORT NAME="slf4j-api" MODULE="slf4j-api-1.7.30.jar" MVN="mvn:org.talend.libraries/slf4j-api-1.7.30/6.0.0-SNAPSHOT" REQUIRED="true"/>
     </IMPORTS> 
   </CODEGENERATION>  
   <RETURNS> 

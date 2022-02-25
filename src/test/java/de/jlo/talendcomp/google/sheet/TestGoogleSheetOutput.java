@@ -40,7 +40,6 @@ public class TestGoogleSheetOutput {
 				throw e;
 			}
 		} // (tGoogleDrive_2 == null)
-		tGoogleSheetOutput_1.setDebug(true);
 		globalMap.put("tGoogleSheetOutput_1", tGoogleSheetOutput_1);
 		tGoogleSheetOutput_1.setMaxRetriesInCaseOfErrors(5);
 		assertTrue(true);
@@ -49,7 +48,6 @@ public class TestGoogleSheetOutput {
 	@Test
 	public void testAppendRows() throws Exception {
 		de.jlo.talendcomp.google.sheet.GoogleSheetOutput gs = (GoogleSheetOutput) globalMap.get("tGoogleSheetOutput_1");
-		gs.setDebug(true);
 		String spreadsheetId = "1unqwDlz1GrPpVUjET-JkUA0FaXkaqMGDX2UV6ll8at0";
 		gs.setSpreadsheetId(spreadsheetId);
 		gs.setSheetName("Sheet3");
@@ -74,7 +72,6 @@ public class TestGoogleSheetOutput {
 	@Test
 	public void testUpdateRows() throws Exception {
 		de.jlo.talendcomp.google.sheet.GoogleSheetOutput gs = (GoogleSheetOutput) globalMap.get("tGoogleSheetOutput_1");
-		gs.setDebug(false);
 		String spreadsheetId = "1unqwDlz1GrPpVUjET-JkUA0FaXkaqMGDX2UV6ll8at0";
 		gs.setSpreadsheetId(spreadsheetId);
 		gs.setSheetName("Sheet3");
@@ -100,7 +97,6 @@ public class TestGoogleSheetOutput {
 	@Test
 	public void testUpdateRowsCreateNewSS() throws Exception {
 		de.jlo.talendcomp.google.sheet.GoogleSheetOutput gs = (GoogleSheetOutput) globalMap.get("tGoogleSheetOutput_1");
-		gs.setDebug(false);
 		gs.setDocumentTitle("Testsheet-2");
 		gs.createSheetDocument();
 		gs.setSheetName("Sheet3");

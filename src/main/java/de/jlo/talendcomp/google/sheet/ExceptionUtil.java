@@ -15,7 +15,6 @@
  */
 package de.jlo.talendcomp.google.sheet;
 
-import java.io.IOException;
 import java.util.List;
 
 import com.google.api.client.googleapis.json.GoogleJsonError;
@@ -32,7 +31,7 @@ public class ExceptionUtil {
 		new IgnorableError(503, null)
 	};
 	
-	public static boolean canBeIgnored(IOException e) {
+	public static boolean canBeIgnored(Throwable e) {
 		boolean ignore = false;
 		if (e instanceof GoogleJsonResponseException) {
 			GoogleJsonResponseException gre = (GoogleJsonResponseException) e;
