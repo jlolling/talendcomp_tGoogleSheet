@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
@@ -39,7 +39,7 @@ import com.google.api.services.sheets.v4.model.Spreadsheet;
 
 public abstract class GoogleSheet {
 	
-	private static Logger logger = LoggerFactory.getLogger(GoogleSheet.class);
+	private static Logger logger = LogManager.getLogger(GoogleSheet.class);
 	private static final Map<String, GoogleSheet> clientCache = new HashMap<String, GoogleSheet>();
 	private HttpTransport HTTP_TRANSPORT = null;
 	private final JsonFactory JSON_FACTORY = new JacksonFactory();
@@ -61,7 +61,6 @@ public abstract class GoogleSheet {
 	private String spreadsheetId = null;
 	private Sheets sheetService = null;
 	private Locale defaultLocale = null;
-	private boolean debug = false;
 	private String sheetName = null;
 	
 	public GoogleSheet() throws Exception {
@@ -78,7 +77,7 @@ public abstract class GoogleSheet {
 	
 	protected Sheets getService() {
 		if (sheetService == null) {
-			throw new IllegalStateException("Sheets service not initialized! Call initializeService() before.");
+			throw new IllegalStateException("Sheets service not initialized! Call initializeClient() before.");
 		}
 		return sheetService;
 	}
@@ -232,13 +231,11 @@ public abstract class GoogleSheet {
 	}
 	
 	public void debug(String message) {
-		if (debug) {
-			if (logger != null && logger.isDebugEnabled()) {
-				logger.debug(message);
-			} else {
-				System.out.println("DEBUG: " + message);
-			}
-		} 
+		if (logger != null && logger.isDebugEnabled()) {
+			logger.debug(message);
+		} else {
+			System.out.println("DEBUG: " + message);
+		}
 	}
 
 	public void warn(String message) {
@@ -329,7 +326,7 @@ public abstract class GoogleSheet {
 		}
 	}
 
-	protected com.google.api.client.json.GenericJson execute(SheetsRequest<?> request) throws IOException {
+	protected com.google.api.client.json.GenericJson execute(SheetsRequest<?> request) throws Exception {
 		try {
 			Thread.sleep(innerLoopWaitInterval);
 		} catch (InterruptedException e) {}
@@ -347,11 +344,14 @@ public abstract class GoogleSheet {
 					debug("Response: " + response.toString());
 				}
 				break;
-			} catch (IOException ge) {
+			} catch (Exception ge) {
 				warn("Got error:" + ge.getMessage());
+				errorMessage = ge.getMessage();
+				if (ge instanceof NullPointerException) {
+					errorMessage = "NullPointerException: " + ge.getStackTrace();
+				}
 				if (ge instanceof HttpResponseException) {
 					errorCode = ((HttpResponseException) ge).getStatusCode();
-					errorMessage = ((HttpResponseException) ge).getMessage();
 				}
 				if (ExceptionUtil.canBeIgnored(ge) == false) {
 					error("Stop processing because of the error does not allow a retry.");

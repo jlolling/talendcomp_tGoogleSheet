@@ -57,14 +57,22 @@ public class GoogleSheetInput extends GoogleSheet {
 		debug("    spreadsheet-Id: " + getSpreadsheetId());
 		debug("    startRowIndex: " + startRowIndex);
 		debug("    range: " + range);
-		Values.Get reqGetValues = getService().spreadsheets().values().get(getSpreadsheetId(), range);
+		Values.Get reqGetValues = getService()
+					.spreadsheets()
+					.values()
+					.get(getSpreadsheetId(), range);
 		reqGetValues.setPrettyPrint(false);
 		reqGetValues.setMajorDimension("ROWS");
 		reqGetValues.setDateTimeRenderOption("FORMATTED_STRING");
 		reqGetValues.setValueRenderOption("UNFORMATTED_VALUE");
 		ValueRange valueRange = (ValueRange) execute(reqGetValues);
+		debug("    received range: " + valueRange.getRange());
 		values = valueRange.getValues();
-		countRows = values.size();
+		if (values == null) {
+			countRows = 0;
+		} else {
+			countRows = values.size();
+		}
 		debug("    count received rows: " + countRows);
 		currentRow = null;
 		currentRowIndex = -1;
