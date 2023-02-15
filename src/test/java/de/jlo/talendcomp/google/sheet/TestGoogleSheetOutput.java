@@ -26,7 +26,7 @@ public class TestGoogleSheetOutput {
 			tGoogleSheetOutput_1.setUseApplicationClientID(true);
 			// setup client with client-Id for native applications
 			tGoogleSheetOutput_1.setAccountEmail("jan.lolling@gmail.com");
-			tGoogleSheetOutput_1.setClientSecretFile("/Data/Talend/testdata/ga/config/client_secret_503880615382-a7rop1easl2maqbul8u7arnd42hgiolu.apps.googleusercontent.com.json");
+			tGoogleSheetOutput_1.setClientSecretFile("/var/testdata/ga/config/client_secret_503880615382-a7rop1easl2maqbul8u7arnd42hgiolu.apps.googleusercontent.com.json");
 			tGoogleSheetOutput_1.setTimeoutInSeconds(240);
 			// prevent token validation problems caused by time
 			// differences between own host and Google
@@ -40,7 +40,6 @@ public class TestGoogleSheetOutput {
 				throw e;
 			}
 		} // (tGoogleDrive_2 == null)
-		tGoogleSheetOutput_1.setDebug(true);
 		globalMap.put("tGoogleSheetOutput_1", tGoogleSheetOutput_1);
 		tGoogleSheetOutput_1.setMaxRetriesInCaseOfErrors(5);
 		assertTrue(true);
@@ -49,7 +48,6 @@ public class TestGoogleSheetOutput {
 	@Test
 	public void testAppendRows() throws Exception {
 		de.jlo.talendcomp.google.sheet.GoogleSheetOutput gs = (GoogleSheetOutput) globalMap.get("tGoogleSheetOutput_1");
-		gs.setDebug(true);
 		String spreadsheetId = "1unqwDlz1GrPpVUjET-JkUA0FaXkaqMGDX2UV6ll8at0";
 		gs.setSpreadsheetId(spreadsheetId);
 		gs.setSheetName("Sheet3");
@@ -74,7 +72,6 @@ public class TestGoogleSheetOutput {
 	@Test
 	public void testUpdateRows() throws Exception {
 		de.jlo.talendcomp.google.sheet.GoogleSheetOutput gs = (GoogleSheetOutput) globalMap.get("tGoogleSheetOutput_1");
-		gs.setDebug(false);
 		String spreadsheetId = "1unqwDlz1GrPpVUjET-JkUA0FaXkaqMGDX2UV6ll8at0";
 		gs.setSpreadsheetId(spreadsheetId);
 		gs.setSheetName("Sheet3");
@@ -100,7 +97,6 @@ public class TestGoogleSheetOutput {
 	@Test
 	public void testUpdateRowsCreateNewSS() throws Exception {
 		de.jlo.talendcomp.google.sheet.GoogleSheetOutput gs = (GoogleSheetOutput) globalMap.get("tGoogleSheetOutput_1");
-		gs.setDebug(false);
 		gs.setDocumentTitle("Testsheet-2");
 		gs.createSheetDocument();
 		gs.setSheetName("Sheet3");

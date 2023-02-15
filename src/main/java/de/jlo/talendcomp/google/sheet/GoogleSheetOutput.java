@@ -10,8 +10,11 @@ import com.google.api.services.sheets.v4.Sheets.Spreadsheets.BatchUpdate;
 import com.google.api.services.sheets.v4.model.AddSheetRequest;
 import com.google.api.services.sheets.v4.model.AppendValuesResponse;
 import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetRequest;
+import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetResponse;
 import com.google.api.services.sheets.v4.model.BatchUpdateValuesRequest;
 import com.google.api.services.sheets.v4.model.BatchUpdateValuesResponse;
+import com.google.api.services.sheets.v4.model.DeleteDimensionRequest;
+import com.google.api.services.sheets.v4.model.DimensionRange;
 import com.google.api.services.sheets.v4.model.GridProperties;
 import com.google.api.services.sheets.v4.model.Request;
 import com.google.api.services.sheets.v4.model.Sheet;
@@ -191,6 +194,34 @@ public class GoogleSheetOutput extends GoogleSheet {
 			countUpdatedRows = 0;
 			updatedRange = null;
 		}
+	}
+
+	public void executeDeleteRowsAfterLastWrittenRow() throws Exception {
+		if (getSheetName() == null) {
+			throw new IllegalStateException("Sheet name must be set!");
+		}
+		if (startColumnName == null) {
+			throw new IllegalStateException("Start column name must be set!");
+		}
+		int lastWrittenRowIndex = startRowIndex + countRows;
+		int lastRowInSheet = 1000000;
+		int sheetId = 0;
+	    BatchUpdateSpreadsheetRequest batchRequest = new BatchUpdateSpreadsheetRequest();
+        Request request = new Request();
+        request.setDeleteDimension(new DeleteDimensionRequest()
+                .setRange(new DimensionRange()
+                        .setSheetId(sheetId)
+                        .setDimension("ROWS")
+                        .setStartIndex(lastWrittenRowIndex + 1)
+                        .setEndIndex(lastRowInSheet)
+                )
+        );
+        List<Request> requests = new ArrayList<>();
+        requests.add(request);
+        batchRequest.setRequests(requests);
+	    Sheets.Spreadsheets.BatchUpdate deleteRequest =
+	            getService().spreadsheets().batchUpdate(getSpreadsheetId(), batchRequest);
+	    deleteRequest.execute();
 	}
 
 	public String getDocumentTitle() {

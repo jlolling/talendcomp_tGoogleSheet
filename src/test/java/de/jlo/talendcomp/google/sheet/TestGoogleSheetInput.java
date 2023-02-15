@@ -41,7 +41,6 @@ public class TestGoogleSheetInput {
 				throw e;
 			}
 		} // (tGoogleDrive_2 == null)
-		tGoogleSheetInput_1.setDebug(true);
 		globalMap.put("tGoogleSheetInput_1", tGoogleSheetInput_1);
 		tGoogleSheetInput_1.setMaxRetriesInCaseOfErrors(5);
 		assertTrue(true);
@@ -62,7 +61,6 @@ public class TestGoogleSheetInput {
 	@Test
 	public void testFetchValuesByName() throws Exception {
 		de.jlo.talendcomp.google.sheet.GoogleSheetInput gs = (GoogleSheetInput) globalMap.get("tGoogleSheetInput_1");
-		gs.setDebug(true);
 		String spreadsheetId = "1unqwDlz1GrPpVUjET-JkUA0FaXkaqMGDX2UV6ll8at0";
 		gs.setSpreadsheetId(spreadsheetId);
 		gs.setSheetName("Sheet2");
