@@ -10,7 +10,6 @@ import com.google.api.services.sheets.v4.Sheets.Spreadsheets.BatchUpdate;
 import com.google.api.services.sheets.v4.model.AddSheetRequest;
 import com.google.api.services.sheets.v4.model.AppendValuesResponse;
 import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetRequest;
-import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetResponse;
 import com.google.api.services.sheets.v4.model.BatchUpdateValuesRequest;
 import com.google.api.services.sheets.v4.model.BatchUpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.DeleteDimensionRequest;
@@ -45,6 +44,7 @@ public class GoogleSheetOutput extends GoogleSheet {
 	private SimpleDateFormat dateFormat = new SimpleDateFormat();
 	private boolean appendOnExistingData = false;
 	private String valueInputOption = VALUE_INPUT_OPTION_RAW;
+	private Sheet currentSheet = null;
 
 	public GoogleSheetOutput() throws Exception {
 		super();
@@ -115,6 +115,7 @@ public class GoogleSheetOutput extends GoogleSheet {
 		boolean needCreate = true;
 		for (Sheet sheet : listSheets) {
 			if (getSheetName().equals(sheet.getProperties().getTitle())) {
+				currentSheet = sheet;
 				needCreate = false;
 				break;
 			}
@@ -135,6 +136,17 @@ public class GoogleSheetOutput extends GoogleSheet {
 			BatchUpdate request = getService().spreadsheets().batchUpdate(getSpreadsheetId(), bur);
 			execute(request);
 		}
+		listSheets = listSheets();
+		for (Sheet sheet : listSheets) {
+			if (getSheetName().equals(sheet.getProperties().getTitle())) {
+				currentSheet = sheet;
+				break;
+			}
+		}
+		if (currentSheet == null) {
+			throw new Exception("Sheet name: " + getSheetName() + "could not be found and also be created!");
+		}
+		lastRowIndex = CellUtil.getLastSheetRowIndex(currentSheet);
 	}
 
 	public void executeUpdate() throws Exception {
@@ -144,10 +156,12 @@ public class GoogleSheetOutput extends GoogleSheet {
 		if (startColumnName == null) {
 			throw new IllegalStateException("Start column name must be set!");
 		}
-		lastRowIndex = startRowIndex + countRows;
+		if (currentSheet == null) {
+			initializeSheet();
+		}
+		int expectedlastRowIndex = startRowIndex + countRows - 1;
 		int endColumnIndex = CellUtil.convertColStringToIndex(startColumnName) + maxRowWith;
-		range = CellUtil.buildRange(getSheetName(), startColumnName, endColumnIndex, startRowIndex, lastRowIndex);
-		initializeSheet();
+		range = CellUtil.buildRange(getSheetName(), startColumnName, endColumnIndex, startRowIndex, expectedlastRowIndex);
 		BatchUpdateValuesRequest buvr = new BatchUpdateValuesRequest();
 		buvr.setValueInputOption(valueInputOption);
 		List<ValueRange> lv = new ArrayList<>();
@@ -164,6 +178,7 @@ public class GoogleSheetOutput extends GoogleSheet {
 		List<UpdateValuesResponse> luvr = response.getResponses();
 		if (luvr != null && luvr.size() > 0) {
 			updatedRange = response.getResponses().get(0).getUpdatedRange();
+			lastRowIndex = CellUtil.getLastRowIndex(updatedRange);
 		}
 	}
 
@@ -174,14 +189,18 @@ public class GoogleSheetOutput extends GoogleSheet {
 		if (startColumnName == null) {
 			throw new IllegalStateException("Start column name must be set!");
 		}
-		lastRowIndex = startRowIndex + countRows;
+		initializeSheet(); // update sheet metadata
+		int startAppendRow = CellUtil.getLastSheetRowIndex(currentSheet);
+		int expectedLastRowIndex = startAppendRow + countRows;
 		int endColumnIndex = CellUtil.convertColStringToIndex(startColumnName) + maxRowWith;
-		range = CellUtil.buildRange(getSheetName(), startColumnName, endColumnIndex, startRowIndex, lastRowIndex);
-		initializeSheet();
+		range = CellUtil.buildRange(getSheetName(), startColumnName, endColumnIndex, startAppendRow, expectedLastRowIndex);
+		if (currentSheet == null) {
+			initializeSheet();
+		}
 		Sheets.Spreadsheets.Values.Append request = getService().spreadsheets().values().append(
 				getSpreadsheetId(),
 				range, 
-				getValueRange());
+				getValueRange().setRange(range));
 		request.setPrettyPrint(false);
 		request.setValueInputOption(valueInputOption);
 		request.setInsertDataOption(appendOnExistingData ? INSERT_DATA_OPTION_INSERT_ROWS : INSERT_DATA_OPTION_OVERWRITE);
@@ -190,6 +209,7 @@ public class GoogleSheetOutput extends GoogleSheet {
 		if (ur != null) {
 			countUpdatedRows = ur.getUpdatedRows();
 			updatedRange = ur.getUpdatedRange();
+			lastRowIndex = CellUtil.getLastRowIndex(updatedRange);
 		} else {
 			countUpdatedRows = 0;
 			updatedRange = null;
@@ -197,30 +217,46 @@ public class GoogleSheetOutput extends GoogleSheet {
 	}
 
 	public void executeDeleteRowsAfterLastWrittenRow() throws Exception {
-		if (getSheetName() == null) {
-			throw new IllegalStateException("Sheet name must be set!");
+		if (currentSheet == null) {
+			throw new IllegalStateException("No current sheet available!");
 		}
-		if (startColumnName == null) {
-			throw new IllegalStateException("Start column name must be set!");
+		int lastSheetRowIndex = CellUtil.getLastSheetRowIndex(currentSheet);
+		int StartRowIndexForDelete = lastRowIndex + 1;
+		if (StartRowIndexForDelete <= lastSheetRowIndex) {
+			executeDeleteRows(StartRowIndexForDelete, null);
+			initializeSheet(); // to refresh the current sheet info
+			lastRowIndex = CellUtil.getLastSheetRowIndex(currentSheet);
 		}
-		int lastWrittenRowIndex = startRowIndex + countRows;
-		int lastRowInSheet = 1000000;
-		int sheetId = 0;
-	    BatchUpdateSpreadsheetRequest batchRequest = new BatchUpdateSpreadsheetRequest();
+	}
+
+	public void executeDeleteRows(Integer startRowIndex, Integer endRowIndex) throws Exception {
+		if (currentSheet == null) {
+			initializeSheet();
+		}
+		if (startRowIndex != null) {
+			startRowIndex = startRowIndex - 1;
+		}
+		if (endRowIndex != null) {
+			endRowIndex = endRowIndex - 1;
+		}
+		int sheetId = currentSheet.getProperties().getSheetId();
+		BatchUpdateSpreadsheetRequest batchRequest = new BatchUpdateSpreadsheetRequest();
         Request request = new Request();
-        request.setDeleteDimension(new DeleteDimensionRequest()
+        request.setDeleteDimension(
+        	new DeleteDimensionRequest()
                 .setRange(new DimensionRange()
                         .setSheetId(sheetId)
                         .setDimension("ROWS")
-                        .setStartIndex(lastWrittenRowIndex + 1)
-                        .setEndIndex(lastRowInSheet)
+                        .setStartIndex(startRowIndex)
+                        .setEndIndex(endRowIndex)
                 )
         );
         List<Request> requests = new ArrayList<>();
         requests.add(request);
         batchRequest.setRequests(requests);
-	    Sheets.Spreadsheets.BatchUpdate deleteRequest =
-	            getService().spreadsheets().batchUpdate(getSpreadsheetId(), batchRequest);
+	    Sheets.Spreadsheets.BatchUpdate deleteRequest = getService()
+	    		.spreadsheets()
+	    		.batchUpdate(getSpreadsheetId(), batchRequest);
 	    deleteRequest.execute();
 	}
 
@@ -288,6 +324,10 @@ public class GoogleSheetOutput extends GoogleSheet {
 				throw new IllegalArgumentException("Invalid value for valueInputOption: " + valueInputOption + ". Only: INPUT_VALUE_OPTION_UNSPECIFIED or RAW or USER_ENTERED allowed");
 			}
 		}
+	}
+
+	public int getLastRowIndex() {
+		return lastRowIndex;
 	}
 
 }

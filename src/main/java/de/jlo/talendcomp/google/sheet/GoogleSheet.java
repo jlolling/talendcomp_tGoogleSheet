@@ -26,7 +26,7 @@ import com.google.api.client.http.HttpResponseException;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.GenericJson;
 import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.Clock;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
@@ -42,7 +42,7 @@ public abstract class GoogleSheet {
 	private static Logger logger = LogManager.getLogger(GoogleSheet.class);
 	private static final Map<String, GoogleSheet> clientCache = new HashMap<String, GoogleSheet>();
 	private HttpTransport HTTP_TRANSPORT = null;
-	private final JsonFactory JSON_FACTORY = new JacksonFactory();
+	private final JsonFactory JSON_FACTORY = new GsonFactory();
 	private File keyFile; // *.p12 key file is needed
 	private String clientSecretFile = null;
 	private String accountEmail;

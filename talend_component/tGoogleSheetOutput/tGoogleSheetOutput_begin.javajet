@@ -45,7 +45,8 @@
 		startColumnIndex = "null";
 	}
 	boolean dieOnError = "true".equals(ElementParameterParser.getValue(node, "__DIE_ON_ERROR__"));
-	boolean addHeader = "true".equals(ElementParameterParser.getValue(node, "__ADD_HEADER_ROW__"));
+	boolean appendRows = "true".equals(ElementParameterParser.getValue(node, "__APPEND_ROWS__"));
+	boolean addHeader = "true".equals(ElementParameterParser.getValue(node, "__ADD_HEADER_ROW__")) && appendRows == false;
 	List<IMetadataColumn> listColumns = new ArrayList<IMetadataColumn>(); // dummy
 	List<IMetadataTable> metadatas = node.getMetadataList();
 	if (metadatas != null && metadatas.size() > 0) {
@@ -150,7 +151,12 @@
 <%	} %>
 	globalMap.put("<%=cid%>_FILE_ID", <%=cid%>.getSpreadsheetId());
 	<%=cid%>.setSheetName(<%=sheetName%>);
+<%	if (appendRows == false) { %>
 	<%=cid%>.setStartRowIndex(<%=startRowIndex%>);
+	<%=cid%>.setAppendOnExistingData(false);
+<%  } else { %>
+	<%=cid%>.setAppendOnExistingData(true);
+<%  } %>
 	<%=cid%>.setStartColumnName(<%=startColumnIndex%>);
 	<%=cid%>.setValueInputOption("<%=valueInputOption%>");
 	int nb_line_<%=cid%> = 0;

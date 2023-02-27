@@ -1,6 +1,8 @@
 package de.jlo.talendcomp.google.sheet;
 
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.google.api.services.sheets.v4.model.GridProperties;
 import com.google.api.services.sheets.v4.model.Sheet;
@@ -80,9 +82,6 @@ public class CellUtil {
     	Integer lastRowIndex = 0;
     	if (gridProps != null) {
     		lastRowIndex = gridProps.getRowCount();
-    		if (lastRowIndex != null && lastRowIndex > 0) {
-    			lastRowIndex = lastRowIndex - 1;
-    		}
     	}
     	return lastRowIndex;
     }
@@ -124,6 +123,28 @@ public class CellUtil {
     	} else {
     		return null;
     	}
+    }
+    
+    /**
+     * Extracts from a ref string the last row index.
+     * @param ref
+     * @return
+     */
+    public static int getLastRowIndex(String ref) {
+    	if (ref == null || ref.trim().isEmpty()) {
+    		throw new IllegalArgumentException("ref cannot be null or empty");
+    	} else {
+    		String regex = "([0-9]{1,})$";
+			Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+	        Matcher matcher = pattern.matcher(ref);
+	        while (matcher.find()) {
+	            if (matcher.start() < matcher.end()) {
+	            	String numberStr = matcher.group(1);
+	            	return Integer.parseInt(numberStr);
+	            }
+	        }
+    	}
+    	return 0;
     }
     
 }
