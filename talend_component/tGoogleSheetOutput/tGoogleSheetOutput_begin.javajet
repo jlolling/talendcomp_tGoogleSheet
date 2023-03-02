@@ -22,6 +22,10 @@
 	String keyFile = ElementParameterParser.getValue(node, "__KEY_FILE__");
 	String clientSecretFile = ElementParameterParser.getValue(node, "__CLIENT_SECRET_FILE__");
 	String userEmail = ElementParameterParser.getValue(node, "__USER_ACCOUNT_EMAIL__");
+	String maxAttempts = ElementParameterParser.getValue(node, "__MAX_ATTEMPTS__");
+	if (maxAttempts == null || maxAttempts.trim().isEmpty()) {
+		maxAttempts = "3";
+	}
 	String timeout = ElementParameterParser.getValue(node, "__TIMEOUT_IN_SEC__");
 	String timeOffset = ElementParameterParser.getValue(node, "__TIME_OFFSET__");
 	String keepClient = ElementParameterParser.getValue(node, "__KEEP_CLIENT__");
@@ -110,6 +114,7 @@
 <%	if (applicationName != null && applicationName.trim().isEmpty() == false) { %>
 		<%=cid%>.setApplicationName(<%=applicationName%>);
 <%	} %>
+	<%=cid%>.setMaxRetriesInCaseOfErrors(<%=maxAttempts%>);
 		try {
 		    // initialize client with private key
 			<%=cid%>.initializeClient();
