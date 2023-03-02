@@ -358,12 +358,12 @@ public abstract class GoogleSheet {
 					throw ge;
 				}
 				if (currentAttempt == (maxRetriesInCaseOfErrors - 1)) {
-					error("All retries of the request have been failed:" + ge.getMessage(), ge);
+					error("All " + maxRetriesInCaseOfErrors + " retries of the request have been failed:" + ge.getMessage(), ge);
 					throw ge;
 				} else {
 					// wait
 					try {
-						debug("Retry request in " + waitTime + "ms");
+						warn("Retry (attempt: " + (currentAttempt + 1) + " of " + maxRetriesInCaseOfErrors + ") request in " + waitTime + "ms");
 						Thread.sleep(waitTime);
 					} catch (InterruptedException ie) {}
 					int random = (int) Math.random() * 500;
