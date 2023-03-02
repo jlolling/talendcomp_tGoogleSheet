@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <COMPONENT> 
-  <HEADER PLATEFORM="ALL" SERIAL="" VERSION="5.0" STATUS="PROD" COMPATIBILITY="ALL" AUTHOR="cimt AG" RELEASE_DATE="20230227" STARTABLE="true" HAS_CONDITIONAL_OUTPUTS="false"> 
+  <HEADER PLATEFORM="ALL" SERIAL="" VERSION="5.1" STATUS="PROD" COMPATIBILITY="ALL" AUTHOR="cimt AG" RELEASE_DATE="20230302" STARTABLE="true" HAS_CONDITIONAL_OUTPUTS="false"> 
     <SIGNATURE/> 
   </HEADER>  
   <FAMILIES> 
@@ -93,13 +93,13 @@
     <PARAMETER NAME="MAX_ATTEMPTS" FIELD="TEXT" REQUIRED="true" NUM_ROW="5"> 
       <DEFAULT>5</DEFAULT> 
     </PARAMETER>  
-    <PARAMETER NAME="RELEASE_LABEL_20230227" FIELD="LABEL" COLOR="0;0;0" NUM_ROW="900">
-      <DEFAULT>Release: 5.0 build at: 20230227</DEFAULT>
+    <PARAMETER NAME="RELEASE_LABEL_20230302" FIELD="LABEL" COLOR="0;0;0" NUM_ROW="900">
+      <DEFAULT>Release: 5.1 build at: 20230302</DEFAULT>
     </PARAMETER>
   </ADVANCED_PARAMETERS>  
   <CODEGENERATION> 
     <IMPORTS> 
-      <IMPORT NAME="jlo-talendcomp-google-sheet" REQUIRED="true" MODULE="jlo-talendcomp-google-sheet-5.0.jar" MVN="mvn:de.jlo.talendcomp.google/jlo-talendcomp-google-sheet/5.0"/>
+      <IMPORT NAME="jlo-talendcomp-google-sheet" REQUIRED="true" MODULE="jlo-talendcomp-google-sheet-5.1.jar" MVN="mvn:de.jlo.talendcomp.google/jlo-talendcomp-google-sheet/5.1"/>
       <IMPORT NAME="google-api-client" REQUIRED="true" MODULE="google-api-client-1.33.2.jar" MVN="mvn:com.google.api-client/google-api-client/1.33.2"/>
       <IMPORT NAME="google-oauth-client" REQUIRED="true" MODULE="google-oauth-client-1.33.0.jar" MVN="mvn:com.google.oauth-client/google-oauth-client/1.33.0"/>
       <IMPORT NAME="google-http-client-gson" REQUIRED="true" MODULE="google-http-client-gson-1.41.2.jar" MVN="mvn:com.google.http-client/google-http-client-gson/1.41.2"/>
