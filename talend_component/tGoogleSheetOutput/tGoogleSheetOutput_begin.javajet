@@ -158,9 +158,6 @@
 	<%=cid%>.setSheetName(<%=sheetName%>);
 <%	if (appendRows == false) { %>
 	<%=cid%>.setStartRowIndex(<%=startRowIndex%>);
-	<%=cid%>.setAppendOnExistingData(false);
-<%  } else { %>
-	<%=cid%>.setAppendOnExistingData(true);
 <%  } %>
 	<%=cid%>.setStartColumnName(<%=startColumnIndex%>);
 	<%=cid%>.setValueInputOption("<%=valueInputOption%>");

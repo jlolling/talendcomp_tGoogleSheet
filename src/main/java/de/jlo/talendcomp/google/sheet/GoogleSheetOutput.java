@@ -26,7 +26,7 @@ import com.google.api.services.sheets.v4.model.ValueRange;
 public class GoogleSheetOutput extends GoogleSheet {
 	
 	private static final String VALUE_INPUT_OPTION_RAW = "RAW";
-	private static final String INSERT_DATA_OPTION_OVERWRITE = "OVERWRITE";
+//	private static final String INSERT_DATA_OPTION_OVERWRITE = "OVERWRITE";
 	private static final String INSERT_DATA_OPTION_INSERT_ROWS = "INSERT_ROWS";
 	private int countRows = 0;
 	private String range = null;
@@ -42,7 +42,7 @@ public class GoogleSheetOutput extends GoogleSheet {
 	private static String DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	private List<Object> row = new ArrayList<Object>();
 	private SimpleDateFormat dateFormat = new SimpleDateFormat();
-	private boolean appendOnExistingData = false;
+//	private boolean appendOnExistingData = false;
 	private String valueInputOption = VALUE_INPUT_OPTION_RAW;
 	private Sheet currentSheet = null;
 
@@ -156,8 +156,10 @@ public class GoogleSheetOutput extends GoogleSheet {
 		if (startColumnName == null) {
 			throw new IllegalStateException("Start column name must be set!");
 		}
-		if (currentSheet == null) {
-			initializeSheet();
+		initializeSheet();
+		if (startRowIndex > lastRowIndex) {
+			debug("Switch to append-mode because start-row-index: " + startRowIndex + " is outside the current grid: " + lastRowIndex);
+			executeAppend();
 		}
 		int expectedlastRowIndex = startRowIndex + countRows - 1;
 		int endColumnIndex = CellUtil.convertColStringToIndex(startColumnName) + maxRowWith;
@@ -190,20 +192,17 @@ public class GoogleSheetOutput extends GoogleSheet {
 			throw new IllegalStateException("Start column name must be set!");
 		}
 		initializeSheet(); // update sheet metadata
-		int startAppendRow = CellUtil.getLastSheetRowIndex(currentSheet);
+		int startAppendRow = CellUtil.getLastSheetRowIndex(currentSheet) + 1;
 		int expectedLastRowIndex = startAppendRow + countRows;
 		int endColumnIndex = CellUtil.convertColStringToIndex(startColumnName) + maxRowWith;
 		range = CellUtil.buildRange(getSheetName(), startColumnName, endColumnIndex, startAppendRow, expectedLastRowIndex);
-		if (currentSheet == null) {
-			initializeSheet();
-		}
 		Sheets.Spreadsheets.Values.Append request = getService().spreadsheets().values().append(
 				getSpreadsheetId(),
 				range, 
 				getValueRange().setRange(range));
 		request.setPrettyPrint(false);
 		request.setValueInputOption(valueInputOption);
-		request.setInsertDataOption(appendOnExistingData ? INSERT_DATA_OPTION_INSERT_ROWS : INSERT_DATA_OPTION_OVERWRITE);
+		request.setInsertDataOption(INSERT_DATA_OPTION_INSERT_ROWS);
 		AppendValuesResponse response = (AppendValuesResponse) execute(request);
 		UpdateValuesResponse ur = response.getUpdates();
 		if (ur != null) {
@@ -304,6 +303,7 @@ public class GoogleSheetOutput extends GoogleSheet {
 		}
 	}
 
+/*
 	public boolean isAppendOnExistingData() {
 		return appendOnExistingData;
 	}
@@ -311,7 +311,7 @@ public class GoogleSheetOutput extends GoogleSheet {
 	public void setAppendOnExistingData(boolean appendOnExistingData) {
 		this.appendOnExistingData = appendOnExistingData;
 	}
-
+*/
 	public String getValueInputOption() {
 		return valueInputOption;
 	}

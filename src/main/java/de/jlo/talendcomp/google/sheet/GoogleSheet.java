@@ -358,7 +358,7 @@ public abstract class GoogleSheet {
 					throw ge;
 				}
 				if (currentAttempt == (maxRetriesInCaseOfErrors - 1)) {
-					error("All " + maxRetriesInCaseOfErrors + " retries of the request have been failed:" + ge.getMessage(), ge);
+					error("All " + maxRetriesInCaseOfErrors + " attempts of the request have been failed:" + ge.getMessage(), ge);
 					throw ge;
 				} else {
 					// wait
