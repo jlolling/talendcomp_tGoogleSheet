@@ -14,7 +14,7 @@ import org.junit.Test;
 public class TestGoogleSheetOutput {
 	
 	private Map<String, Object> globalMap = new HashMap<>();
-	private String spreadsheetId = "151Wg57LP6xtlt_AzdZaTC3ZLpByU5EvOf9BM8OD7UWc";
+	private String spreadsheetId = "11oGPqaB0iLHLCovvqjnpySjBxdHv4j7uDefXlHVmCo4";
 
 	@Before
 	public void testIntializeClient() throws Exception {
@@ -27,7 +27,7 @@ public class TestGoogleSheetOutput {
 			tGoogleSheetOutput_1.setUseApplicationClientID(true);
 			// setup client with client-Id for native applications
 			tGoogleSheetOutput_1.setAccountEmail("jan.lolling@gmail.com");
-			tGoogleSheetOutput_1.setClientSecretFile("/var/testdata/ga/config/client_secret_503880615382-4d8cqhuu8bn7f8l51cpih8tp74ndmnhk.apps.googleusercontent.com.json");
+			tGoogleSheetOutput_1.setClientSecretFile("/Users/jan/development/testdata/ga/config/client_secret_503880615382-dmkolgq6omnhaahpku34c1dclh4pnnkr.apps.googleusercontent.com.json");
 			tGoogleSheetOutput_1.setTimeoutInSeconds(240);
 			// prevent token validation problems caused by time
 			// differences between own host and Google
@@ -151,4 +151,11 @@ public class TestGoogleSheetOutput {
 		gs.executeDeleteRows(2, null);
 	}
 
+	@Test
+	public void testClearSheet() throws Exception {
+		de.jlo.talendcomp.google.sheet.GoogleSheetOutput gs = (GoogleSheetOutput) globalMap.get("tGoogleSheetOutput_1");
+		gs.setSpreadsheetId(spreadsheetId);
+		gs.setSheetName("Sheet1");
+		gs.clearSheet();
+	}
 }

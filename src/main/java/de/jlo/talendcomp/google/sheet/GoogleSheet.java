@@ -232,7 +232,7 @@ public abstract class GoogleSheet {
 		if (logger != null) {
 			logger.info(message);
 		} else {
-			System.out.println("INFO: " + message);
+			System.out.println("INFO: " + message);	
 		}
 	}
 	

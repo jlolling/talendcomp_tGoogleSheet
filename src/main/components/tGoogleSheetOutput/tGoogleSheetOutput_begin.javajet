@@ -49,8 +49,9 @@
 		startColumnIndex = "null";
 	}
 	boolean dieOnError = "true".equals(ElementParameterParser.getValue(node, "__DIE_ON_ERROR__"));
-	boolean appendRows = "true".equals(ElementParameterParser.getValue(node, "__APPEND_ROWS__"));
-	boolean addHeader = "true".equals(ElementParameterParser.getValue(node, "__ADD_HEADER_ROW__")) && appendRows == false;
+	boolean clearSheet = "true".equals(ElementParameterParser.getValue(node, "__CLEAR_SHEET_VALUES__"));
+	boolean appendRows = "true".equals(ElementParameterParser.getValue(node, "__APPEND_ROWS__")) && (clearSheet == false);
+	boolean addHeader = "true".equals(ElementParameterParser.getValue(node, "__ADD_HEADER_ROW__")) && (appendRows == false);
 	List<IMetadataColumn> listColumns = new ArrayList<IMetadataColumn>(); // dummy
 	List<IMetadataTable> metadatas = node.getMetadataList();
 	if (metadatas != null && metadatas.size() > 0) {

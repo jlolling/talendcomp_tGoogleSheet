@@ -4,7 +4,7 @@
 
 	<groupId>de.jlo.talendcomp.google</groupId>
 	<artifactId>jlo-talendcomp-google-sheet</artifactId>
-	<version>6.0</version>
+	<version>6.1</version>
 	<packaging>jar</packaging>
 
 	<name>talendcomp_tGoogleSheet</name>

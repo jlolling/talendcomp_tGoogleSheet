@@ -12,6 +12,8 @@ import com.google.api.services.sheets.v4.model.AppendValuesResponse;
 import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetRequest;
 import com.google.api.services.sheets.v4.model.BatchUpdateValuesRequest;
 import com.google.api.services.sheets.v4.model.BatchUpdateValuesResponse;
+import com.google.api.services.sheets.v4.model.ClearValuesRequest;
+import com.google.api.services.sheets.v4.model.ClearValuesResponse;
 import com.google.api.services.sheets.v4.model.DeleteDimensionRequest;
 import com.google.api.services.sheets.v4.model.DimensionRange;
 import com.google.api.services.sheets.v4.model.GridProperties;
@@ -32,6 +34,7 @@ public class GoogleSheetOutput extends GoogleSheet {
 	private String range = null;
 	private int startRowIndex = 1;
 	private int lastRowIndex = 0;
+	private int lastColumnIndex = 0;
 	private String startColumnName = "A";
 	private int endColumnIndex = 0;
 	private int maxRowWith = -1;
@@ -147,6 +150,25 @@ public class GoogleSheetOutput extends GoogleSheet {
 			throw new Exception("Sheet name: " + getSheetName() + "could not be found and also be created!");
 		}
 		lastRowIndex = CellUtil.getLastSheetRowIndex(currentSheet);
+		lastColumnIndex = CellUtil.getLastSheetColumnIndex(currentSheet);
+		debug("Sheet " + getSheetName() + " has " + lastRowIndex + " rows and " + lastColumnIndex + " columns");
+	}
+	
+	public void clearSheet() throws Exception {
+		if (currentSheet == null) {
+			initializeSheet();
+		}
+		if (lastRowIndex > 0) {
+//			String clearRange = CellUtil.buildRange(getSheetName(), "A", lastColumnIndex, 1, lastRowIndex);
+//			debug("Start clean sheet values in the range: " + clearRange);
+//			Sheets.Spreadsheets.Values.Clear clear = getService().spreadsheets().values().clear(getSpreadsheetId(), clearRange, null);
+//			ClearValuesResponse resp = (ClearValuesResponse) execute(clear);
+//			debug("Sheet values was cleared in the range: " + resp.getClearedRange());
+			executeDeleteRows(1, lastRowIndex);
+			initializeSheet(); // to refresh the current sheet info
+		} else {
+			debug("Clear sheet not done because sheet was already empty");
+		}
 	}
 
 	public void executeUpdate() throws Exception {

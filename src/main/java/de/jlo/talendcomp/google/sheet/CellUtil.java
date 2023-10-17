@@ -86,6 +86,16 @@ public class CellUtil {
     	return lastRowIndex;
     }
     
+    public static int getLastSheetColumnIndex(Sheet sheet) {
+    	SheetProperties props = sheet.getProperties();
+    	GridProperties gridProps = props.getGridProperties();
+    	Integer lastColumnIndex = 0;
+    	if (gridProps != null) {
+    		lastColumnIndex = gridProps.getColumnCount();
+    	}
+    	return lastColumnIndex;
+    }
+
     public static String buildRange(String sheetName, String firstColumnName, int lastColumnIndex, Integer firstRowIndex, Integer lastRowIndex) {
     	StringBuilder sb = new StringBuilder();
     	boolean hasSheetName = false;
