@@ -77,7 +77,6 @@ public class TestGoogleSheetOutput {
 		de.jlo.talendcomp.google.sheet.GoogleSheetOutput gs = (GoogleSheetOutput) globalMap.get("tGoogleSheetOutput_1");
 		gs.setSpreadsheetId(spreadsheetId);
 		gs.setSheetName("Sheet1");
-		gs.setAppendOnExistingData(true);
 		int countInserts = 0;
 		for (int i = 1; i <= 10; i++) {
 			gs.addValue("String_value_üöä_" + i, null);

@@ -82,8 +82,12 @@
 				columnIndexMap.put(columnIndex, String.valueOf(columnIndex));
 			}
 			String columnHeader = fd.get("COLUMN_HEADER_NAME");
-			if (configColumnByHeader && columnHeader != null && columnHeader.trim().isEmpty() == false) {
-				headerNameMap.put(columnIndex, columnHeader);
+			if (configColumnByHeader) {
+				if (columnHeader != null && columnHeader.trim().isEmpty() == false) {
+					headerNameMap.put(columnIndex, columnHeader);
+				} else {
+					headerNameMap.put(columnIndex, "\"" + schemaColumn + "\"");
+				}
 			}
 			useLastMap.put(columnIndex, useIndividualColumnPositions && "true".equals(useLast));
 			ignoreMissingMap.put(columnIndex, "true".equals(fd.get("IGNORE_IF_MISSING")));

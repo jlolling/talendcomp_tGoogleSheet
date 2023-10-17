@@ -154,16 +154,22 @@ public abstract class GoogleSheet {
 		// Checks that the defaults have been replaced (Default =
 		// "Enter X here").
 		if (clientSecrets.getInstalled() == null) {
-			throw new IllegalStateException("The credentials are not suitable for this component. Please take car you choose the authentication type for Desktop (formally known as Installed Applications. The authentication type for Web applications does not work here.");
+			throw new IllegalStateException("The credentials in the file: " + secretFile.getAbsolutePath() + " are not suitable for this component. Please take car you choose the authentication type for Desktop (formally known as Installed Applications). The authentication type for Web applications does not work here.");
 		}
-		if (clientSecrets.getDetails().getClientId().startsWith("Enter")
-				|| clientSecrets
-					.getDetails()
-					.getClientSecret()
-					.startsWith("Enter ")) {
+		String clientId = clientSecrets
+				.getDetails()
+				.getClientId();
+		if (clientId == null) {
+			throw new Exception("The secret file: " + secretFile.getAbsolutePath() + " does not contains a client_id");
+		}
+		String clientSecret = clientSecrets
+				.getDetails()
+				.getClientSecret();
+		if (clientId.startsWith("Enter")
+				|| (clientSecret != null && clientSecret.startsWith("Enter "))) {
 			throw new Exception("The client secret file does not contains the credentials. At first you have to pass the web based authorization process!");
 		}
-		credentialDataStoreDir= secretFile.getParent() + "/" + clientSecrets.getDetails().getClientId() + "/";
+		credentialDataStoreDir= secretFile.getParent() + "/" + clientId + "/";
 		File credentialDataStoreDirFile = new File(credentialDataStoreDir);             
 		if (credentialDataStoreDirFile.exists() == false && credentialDataStoreDirFile.mkdirs() == false) {
 			throw new Exception("Credentedial data dir does not exists or cannot created:" + credentialDataStoreDir);

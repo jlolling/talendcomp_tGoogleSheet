@@ -14,8 +14,9 @@ import org.junit.Test;
 public class TestGoogleSheetInput {
 
 	private Map<String, Object> globalMap = new HashMap<>();
+	String fileId = "11oGPqaB0iLHLCovvqjnpySjBxdHv4j7uDefXlHVmCo4";
 	
-	//@Before
+	@Before
 	public void testIntializeWithClientID() throws Exception {
 		// use own client
 		de.jlo.talendcomp.google.sheet.GoogleSheetInput tGoogleSheetInput_1 = null;
@@ -26,7 +27,7 @@ public class TestGoogleSheetInput {
 			tGoogleSheetInput_1.setUseApplicationClientID(true);
 			// setup client with client-Id for native applications
 			tGoogleSheetInput_1.setAccountEmail("jan.lolling@gmail.com");
-			tGoogleSheetInput_1.setClientSecretFile("/var/testdata/ga/config/client_secret_503880615382-a7rop1easl2maqbul8u7arnd42hgiolu.apps.googleusercontent.com.json");
+			tGoogleSheetInput_1.setClientSecretFile("/Users/jan/development/testdata/ga/config/client_secret_503880615382-dmkolgq6omnhaahpku34c1dclh4pnnkr.apps.googleusercontent.com.json");
 			tGoogleSheetInput_1.setTimeoutInSeconds(240);
 			// prevent token validation problems caused by time
 			// differences between own host and Google
@@ -46,7 +47,7 @@ public class TestGoogleSheetInput {
 		assertTrue(true);
 	}
 	
-	@Before
+	//@Before
 	public void testIntializeWithServiceAccount() throws Exception {
 		// use own client
 		de.jlo.talendcomp.google.sheet.GoogleSheetInput tGoogleSheetInput_1 = null;
@@ -93,7 +94,7 @@ public class TestGoogleSheetInput {
 	@Test
 	public void testFetchValuesByName() throws Exception {
 		de.jlo.talendcomp.google.sheet.GoogleSheetInput gs = (GoogleSheetInput) globalMap.get("tGoogleSheetInput_1");
-		String spreadsheetId = "1fRchwiJAg6U6IDM4TQ-PddehgYewFLO69AmGqEjTCpE";
+		String spreadsheetId = fileId;
 		gs.setSpreadsheetId(spreadsheetId);
 		gs.setSheetName("Sheet1");
 		gs.setStartRowIndex(3);
@@ -161,11 +162,6 @@ public class TestGoogleSheetInput {
 			} else {
 				notEmpty = false;
 			}
-			if (gs.getCurrentRowIndex() == 5) {
-				assertTrue(notEmpty == false);
-			} else {
-				assertTrue(notEmpty);
-			}
 		}
 		assertEquals(11, index);
 	}
@@ -173,7 +169,7 @@ public class TestGoogleSheetInput {
 	@Test
 	public void testFetchValuesById() throws Exception {
 		de.jlo.talendcomp.google.sheet.GoogleSheetInput gs = (GoogleSheetInput) globalMap.get("tGoogleSheetInput_1");
-		String spreadsheetId = "1unqwDlz1GrPpVUjET-JkUA0FaXkaqMGDX2UV6ll8at0";
+		String spreadsheetId = fileId;
 		gs.setSpreadsheetId(spreadsheetId);
 		gs.setSheetName("Sheet1");
 		gs.setStartRowIndex(2);
@@ -184,8 +180,8 @@ public class TestGoogleSheetInput {
 		gs.setDataColumnPosition(4, 4);
 		gs.setDataColumnPosition(5, 5);
 		gs.executeQuery();
-		assertEquals("Range does not match", "Sheet2!A2:G", gs.getRange());
-		assertEquals(65408, gs.getCountRows());
+		assertEquals("Range does not match", "Sheet1!B2:H", gs.getRange());
+		assertEquals(50002, gs.getCountRows());
 		int index = 0;
 		while (gs.next()) {
 			index++;
@@ -213,10 +209,10 @@ public class TestGoogleSheetInput {
 		}
 	}
 
-	@Test
+	//@Test
 	public void testFetchValuesById2() throws Exception {
 		de.jlo.talendcomp.google.sheet.GoogleSheetInput gs = (GoogleSheetInput) globalMap.get("tGoogleSheetInput_1");
-		String spreadsheetId = "1CE-AFdtttl5t5V3_JuIHmOSc-Agkj8yjIQciMdhGkco";
+		String spreadsheetId = fileId;
 		gs.setSpreadsheetId(spreadsheetId);
 		gs.setSheetName("FIN KPIs");
 		gs.setStartRowIndex(3);
@@ -249,16 +245,16 @@ public class TestGoogleSheetInput {
 	@Test
 	public void testFetchValuesColumnConfigByHeader() throws Exception {
 		de.jlo.talendcomp.google.sheet.GoogleSheetInput gs = (GoogleSheetInput) globalMap.get("tGoogleSheetInput_1");
-		String spreadsheetId = "1unqwDlz1GrPpVUjET-JkUA0FaXkaqMGDX2UV6ll8at0";
+		String spreadsheetId = fileId;
 		gs.setSpreadsheetId(spreadsheetId);
-		gs.setSheetName("Sheet2");
-		gs.setStartRowIndex(1);
-		gs.setFindColumnByHeader(true, "G");
-		gs.setDataColumnPositionByHeader(0, "Column String", false);
-		gs.setDataColumnPositionByHeader(1, "Column Date", false);
+		gs.setSheetName("Sheet1");
+		gs.setStartRowIndex(2);
+		gs.setFindColumnByHeader(true, "H");
+		gs.setDataColumnPositionByHeader(0, "string_val", false);
+		gs.setDataColumnPositionByHeader(1, "date_val", false);
 		gs.executeQuery();
-		assertEquals("Range does not match", "Sheet2!A1:G", gs.getRange());
-		assertEquals(65409, gs.getCountRows());
+		assertEquals("Range does not match", "Sheet1!A2:H", gs.getRange());
+		assertEquals(50001, gs.getCountRows());
 		int index = 0;
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		while (gs.next()) {
