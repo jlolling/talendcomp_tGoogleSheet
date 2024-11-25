@@ -4,6 +4,10 @@ tGoogleSheetOutput can create and write sheets
 
 The documentation are PDF files:
 
-tGoogleSheetInput: https://github.com/jlolling/talendcomp_tGoogleSheet/blob/master/doc/tGoogleSheetInput.pdf
+[tGoogleSheetInput Documentation](https://github.com/jlolling/talendcomp_tGoogleSheet/blob/master/doc/tGoogleSheetInput.pdf)
 
-tGoogleSheetOutput: https://github.com/jlolling/talendcomp_tGoogleSheet/blob/master/doc/tGoogleSheetOutput.pdf
+[tGoogleSheetOutput Documentation](https://github.com/jlolling/talendcomp_tGoogleSheet/blob/master/doc/tGoogleSheetOutput.pdf)
+
+[Download Components](https://github.com/jlolling/talendcomp_tGoogleSheet/releases)
+
+
