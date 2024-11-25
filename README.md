@@ -8,4 +8,6 @@ tGoogleSheetOutput can create and write sheets
 
 [Download Components](https://github.com/jlolling/talendcomp_tGoogleSheet/releases)
 
+[Help page for download and install](https://jan-lolling.de/)
+
 
