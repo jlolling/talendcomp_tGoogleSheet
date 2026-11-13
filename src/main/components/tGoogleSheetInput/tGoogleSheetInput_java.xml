@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<COMPONENT> 
+  <HEADER PLATEFORM="ALL" SERIAL="" VERSION="5.2" STATUS="PROD" COMPATIBILITY="ALL" AUTHOR="cimt AG" RELEASE_DATE="20230419" STARTABLE="true" HAS_CONDITIONAL_OUTPUTS="false"> 
+    <SIGNATURE/> 
+  </HEADER>  
+  <FAMILIES> 
+    <FAMILY>Cloud/Google</FAMILY> 
+  </FAMILIES>  
+  <DOCUMENTATION> 
+    <URL/> 
+  </DOCUMENTATION>  
+  <CONNECTORS> 
+    <CONNECTOR CTYPE="FLOW" MAX_INPUT="0" MAX_OUTPUT="1"/>  
+    <CONNECTOR CTYPE="ITERATE" MAX_OUTPUT="1" MAX_INPUT="1"/>  
+    <CONNECTOR CTYPE="SUBJOB_OK" MAX_INPUT="1"/>  
+    <CONNECTOR CTYPE="SUBJOB_ERROR" MAX_INPUT="1"/>  
+    <CONNECTOR CTYPE="COMPONENT_OK"/>  
+    <CONNECTOR CTYPE="COMPONENT_ERROR"/>  
+    <CONNECTOR CTYPE="RUN_IF"/> 
+  </CONNECTORS>  
+  <PARAMETERS> 
+    <PARAMETER FIELD="CLOSED_LIST" NAME="AUTHENTICATION_METHOD" NUM_ROW="10" REQUIRED="true" GROUP="CLIENT"> 
+      <ITEMS DEFAULT="SERVICE_ACCOUNT"> 
+        <ITEM NAME="SERVICE_ACCOUNT" VALUE="SERVICE_ACCOUNT"/>  
+        <ITEM NAME="APPLICATION_CLIENT_ID" VALUE="APPLICATION_CLIENT_ID"/> 
+      </ITEMS> 
+    </PARAMETER>  
+    <PARAMETER FIELD="TEXT" NAME="APPLICATION_NAME" NUM_ROW="15" GROUP="CLIENT"> 
+      <DEFAULT>jobName</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER FIELD="TEXT" NAME="SERVICE_ACCOUNT_EMAIL" NUM_ROW="20" REQUIRED="true" GROUP="CLIENT" SHOW_IF="(AUTHENTICATION_METHOD == 'SERVICE_ACCOUNT')"> 
+      <DEFAULT>"[service-account-id]developer.gserviceaccount.com"</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER FIELD="FILE" NAME="KEY_FILE" NUM_ROW="21" REQUIRED="true" GROUP="CLIENT" SHOW_IF="(AUTHENTICATION_METHOD == 'SERVICE_ACCOUNT')"> 
+      <DEFAULT>"/tmp/76548c6bc96518473d7e425e1415a14e495d34eb-privatekey.p12"</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER FIELD="TEXT" NAME="USER_ACCOUNT_EMAIL" NUM_ROW="20" REQUIRED="true" GROUP="CLIENT" SHOW_IF="(AUTHENTICATION_METHOD == 'APPLICATION_CLIENT_ID')"> 
+      <DEFAULT>"yourmail@gmail.com"</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER FIELD="FILE" NAME="CLIENT_SECRET_FILE" NUM_ROW="21" REQUIRED="true" GROUP="CLIENT" SHOW_IF="(AUTHENTICATION_METHOD == 'APPLICATION_CLIENT_ID')"> 
+      <DEFAULT>"/tmp/client_secret.json"</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER NAME="SCHEMA" FIELD="SCHEMA_TYPE" REQUIRED="true" NUM_ROW="30"> 
+      <DEFAULT/> 
+    </PARAMETER>  
+    <PARAMETER NAME="FILE_ID" FIELD="TEXT" NUM_ROW="40" REQUIRED="true"> 
+      <DEFAULT/> 
+    </PARAMETER>  
+    <PARAMETER NAME="SHEET_NAME" FIELD="TEXT" NUM_ROW="45" REQUIRED="true"> 
+      <DEFAULT>"Sheet1"</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER NAME="START_ROW_INDEX" FIELD="TEXT" NUM_ROW="47" REQUIRED="true"> 
+      <DEFAULT>1</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER NAME="LIMIT" FIELD="TEXT" NUM_ROW="47"> 
+      <DEFAULT/> 
+    </PARAMETER>  
+    <PARAMETER NAME="STOP_AT_EMPTY_ROW" FIELD="CHECK" NUM_ROW="50" REQUIRED="true"> 
+      <DEFAULT>true</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER NAME="SKIP_EMPTY_ROW" FIELD="CHECK" REQUIRED="true" NUM_ROW="50" SHOW_IF="STOP_AT_EMPTY_ROW == 'false'"> 
+      <DEFAULT>false</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER NAME="CONFIG_COLUMN_POS" FIELD="CHECK" REQUIRED="true" NUM_ROW="62"> 
+      <DEFAULT>true</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER NAME="START_COLUMN_INDEX" FIELD="TEXT" NUM_ROW="70" REQUIRED="true" SHOW_IF="CONFIG_COLUMN_POS == 'false'"> 
+      <DEFAULT>"A"</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER NAME="CONFIG_COLUMN_POS_BY_HEADER" FIELD="CHECK" REQUIRED="true" NUM_ROW="63" SHOW_IF="(CONFIG_COLUMN_POS == 'true')"> 
+      <DEFAULT>true</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER NAME="END_COLUMN_INDEX" FIELD="TEXT" NUM_ROW="63" REQUIRED="true" SHOW_IF="(CONFIG_COLUMN_POS == 'true') and (CONFIG_COLUMN_POS_BY_HEADER == 'true')"> 
+      <DEFAULT>"Z"</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER NAME="CONFIG_COLUMN_POS_BY_HEADER_LABEL" FIELD="LABEL" COLOR="0;0;0" NUM_ROW="64" SHOW_IF="(CONFIG_COLUMN_POS == 'true') and (CONFIG_COLUMN_POS_BY_HEADER == 'true')"> 
+      <DEFAULT>Take care the row before the first data row contains the header.</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER NAME="FIELD_CONFIG" FIELD="TABLE" REQUIRED="true" NUM_ROW="70" NB_LINES="10" SHOW_IF="CONFIG_COLUMN_POS == 'true'"> 
+      <ITEMS BASED_ON_SCHEMA="true"> 
+        <ITEM NAME="COLUMN_INDEX" FIELD="TEXT" SHOW_IF="CONFIG_COLUMN_POS_BY_HEADER == 'false'"/>  
+        <ITEM NAME="COLUMN_HEADER_NAME" FIELD="TEXT" SHOW_IF="CONFIG_COLUMN_POS_BY_HEADER == 'true'"/>  
+        <ITEM NAME="IGNORE_IF_MISSING" FIELD="CHECK" SHOW_IF="CONFIG_COLUMN_POS_BY_HEADER == 'true'"/>  
+        <ITEM NAME="KEEP_LAST" FIELD="CHECK"/>  
+        <ITEM NAME="IGNORE_ERROR" FIELD="CHECK"/> 
+      </ITEMS> 
+    </PARAMETER>  
+    <PARAMETER NAME="DIE_ON_ERROR" FIELD="CHECK" NUM_ROW="130"> 
+      <DEFAULT>true</DEFAULT> 
+    </PARAMETER> 
+  </PARAMETERS>  
+  <ADVANCED_PARAMETERS> 
+    <PARAMETER NAME="MAX_ATTEMPTS" FIELD="TEXT" REQUIRED="true" NUM_ROW="5"> 
+      <DEFAULT>5</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER NAME="DEFAULT_LOCALE" FIELD="TEXT" REQUIRED="true" NUM_ROW="10"> 
+      <DEFAULT>"en"</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER NAME="TRIMALL" FIELD="CHECK" NUM_ROW="30"> 
+      <DEFAULT>false</DEFAULT> 
+    </PARAMETER>  
+    <PARAMETER NAME="TRIMSELECT" FIELD="TABLE" NUM_ROW="40" NB_LINES="10" SHOW_IF="TRIMALL=='false'"> 
+      <ITEMS BASED_ON_SCHEMA="true"> 
+        <ITEM NAME="TRIM" FIELD="CHECK"/> 
+      </ITEMS> 
+    </PARAMETER>  
+    <PARAMETER NAME="RELEASE_LABEL_20230419" FIELD="LABEL" COLOR="0;0;0" NUM_ROW="900">
+      <DEFAULT>Release: 5.2 build at: 20230419</DEFAULT>
+    </PARAMETER>
+  </ADVANCED_PARAMETERS>  
+  <CODEGENERATION> 
+    <IMPORTS> 
+      <IMPORT NAME="jlo-talendcomp-google-sheet" REQUIRED="true" MODULE="jlo-talendcomp-google-sheet-5.2.jar" MVN="mvn:de.jlo.talendcomp.google/jlo-talendcomp-google-sheet/5.2"/>
+      <IMPORT NAME="google-api-client" REQUIRED="true" MODULE="google-api-client-1.33.2.jar" MVN="mvn:com.google.api-client/google-api-client/1.33.2"/>
+      <IMPORT NAME="google-oauth-client" REQUIRED="true" MODULE="google-oauth-client-1.33.0.jar" MVN="mvn:com.google.oauth-client/google-oauth-client/1.33.0"/>
+      <IMPORT NAME="google-http-client-gson" REQUIRED="true" MODULE="google-http-client-gson-1.41.2.jar" MVN="mvn:com.google.http-client/google-http-client-gson/1.41.2"/>
+      <IMPORT NAME="gson" REQUIRED="true" MODULE="gson-2.8.9.jar" MVN="mvn:com.google.code.gson/gson/2.8.9"/>
+      <IMPORT NAME="google-http-client-apache-v2" REQUIRED="true" MODULE="google-http-client-apache-v2-1.41.2.jar" MVN="mvn:com.google.http-client/google-http-client-apache-v2/1.41.2"/>
+      <IMPORT NAME="httpcore" REQUIRED="true" MODULE="httpcore-4.4.15.jar" MVN="mvn:org.apache.httpcomponents/httpcore/4.4.15"/>
+      <IMPORT NAME="google-http-client" REQUIRED="true" MODULE="google-http-client-1.41.2.jar" MVN="mvn:com.google.http-client/google-http-client/1.41.2"/>
+      <IMPORT NAME="opencensus-api" REQUIRED="true" MODULE="opencensus-api-0.30.0.jar" MVN="mvn:io.opencensus/opencensus-api/0.30.0"/>
+      <IMPORT NAME="grpc-context" REQUIRED="true" MODULE="grpc-context-1.27.2.jar" MVN="mvn:io.grpc/grpc-context/1.27.2"/>
+      <IMPORT NAME="opencensus-contrib-http-util" REQUIRED="true" MODULE="opencensus-contrib-http-util-0.30.0.jar" MVN="mvn:io.opencensus/opencensus-contrib-http-util/0.30.0"/>
+      <IMPORT NAME="guava" REQUIRED="true" MODULE="guava-31.0.1-jre.jar" MVN="mvn:com.google.guava/guava/31.0.1-jre"/>
+      <IMPORT NAME="failureaccess" REQUIRED="true" MODULE="failureaccess-1.0.1.jar" MVN="mvn:com.google.guava/failureaccess/1.0.1"/>
+      <IMPORT NAME="listenablefuture" REQUIRED="true" MODULE="listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar" MVN="mvn:com.google.guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava"/>
+      <IMPORT NAME="jsr305" REQUIRED="true" MODULE="jsr305-3.0.2.jar" MVN="mvn:com.google.code.findbugs/jsr305/3.0.2"/>
+      <IMPORT NAME="checker-qual" REQUIRED="true" MODULE="checker-qual-3.12.0.jar" MVN="mvn:org.checkerframework/checker-qual/3.12.0"/>
+      <IMPORT NAME="error_prone_annotations" REQUIRED="true" MODULE="error_prone_annotations-2.7.1.jar" MVN="mvn:com.google.errorprone/error_prone_annotations/2.7.1"/>
+      <IMPORT NAME="j2objc-annotations" REQUIRED="true" MODULE="j2objc-annotations-1.3.jar" MVN="mvn:com.google.j2objc/j2objc-annotations/1.3"/>
+      <IMPORT NAME="google-oauth-client-jetty" REQUIRED="true" MODULE="google-oauth-client-jetty-1.34.0.jar" MVN="mvn:com.google.oauth-client/google-oauth-client-jetty/1.34.0"/>
+      <IMPORT NAME="google-oauth-client-java6" REQUIRED="true" MODULE="google-oauth-client-java6-1.34.0.jar" MVN="mvn:com.google.oauth-client/google-oauth-client-java6/1.34.0"/>
+      <IMPORT NAME="google-api-services-sheets" REQUIRED="true" MODULE="google-api-services-sheets-v4-rev20221216-2.0.0.jar" MVN="mvn:com.google.apis/google-api-services-sheets/v4-rev20221216-2.0.0"/>
+      <IMPORT NAME="httpclient" REQUIRED="true" MODULE="httpclient-4.5.10.jar" MVN="mvn:org.apache.httpcomponents/httpclient/4.5.10"/>
+      <IMPORT NAME="commons-logging" REQUIRED="true" MODULE="commons-logging-1.2.jar" MVN="mvn:commons-logging/commons-logging/1.2"/>
+      <IMPORT NAME="commons-codec" REQUIRED="true" MODULE="commons-codec-1.11.jar" MVN="mvn:commons-codec/commons-codec/1.11"/>
+      <IMPORT NAME="jackson-databind" REQUIRED="true" MODULE="jackson-databind-2.13.1.jar" MVN="mvn:com.fasterxml.jackson.core/jackson-databind/2.13.1"/>
+      <IMPORT NAME="jackson-annotations" REQUIRED="true" MODULE="jackson-annotations-2.13.1.jar" MVN="mvn:com.fasterxml.jackson.core/jackson-annotations/2.13.1"/>
+      <IMPORT NAME="jackson-core" REQUIRED="true" MODULE="jackson-core-2.13.1.jar" MVN="mvn:com.fasterxml.jackson.core/jackson-core/2.13.1"/>
+      <IMPORT NAME="google-http-client-jackson2" REQUIRED="true" MODULE="google-http-client-jackson2-1.43.0.jar" MVN="mvn:com.google.http-client/google-http-client-jackson2/1.43.0"/>
+    </IMPORTS> 
+  </CODEGENERATION>  
+  <RETURNS> 
+    <RETURN NAME="NB_LINE" TYPE="id_Integer" AVAILABILITY="AFTER"/>  
+    <RETURN NAME="FILE_ID" TYPE="id_String" AVAILABILITY="AFTER"/> 
+  </RETURNS>
+</COMPONENT>

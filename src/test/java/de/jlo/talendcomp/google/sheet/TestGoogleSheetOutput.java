@@ -14,6 +14,7 @@ import org.junit.Test;
 public class TestGoogleSheetOutput {
 	
 	private Map<String, Object> globalMap = new HashMap<>();
+	private String spreadsheetId = "11oGPqaB0iLHLCovvqjnpySjBxdHv4j7uDefXlHVmCo4";
 
 	@Before
 	public void testIntializeClient() throws Exception {
@@ -26,7 +27,7 @@ public class TestGoogleSheetOutput {
 			tGoogleSheetOutput_1.setUseApplicationClientID(true);
 			// setup client with client-Id for native applications
 			tGoogleSheetOutput_1.setAccountEmail("jan.lolling@gmail.com");
-			tGoogleSheetOutput_1.setClientSecretFile("/Data/Talend/testdata/ga/config/client_secret_503880615382-a7rop1easl2maqbul8u7arnd42hgiolu.apps.googleusercontent.com.json");
+			tGoogleSheetOutput_1.setClientSecretFile("/Users/jan/development/testdata/ga/config/client_secret_503880615382-dmkolgq6omnhaahpku34c1dclh4pnnkr.apps.googleusercontent.com.json");
 			tGoogleSheetOutput_1.setTimeoutInSeconds(240);
 			// prevent token validation problems caused by time
 			// differences between own host and Google
@@ -46,14 +47,38 @@ public class TestGoogleSheetOutput {
 	}
 
 	@Test
-	public void testAppendRows() throws Exception {
+	public void testUpdateRowsCreateNewSS() throws Exception {
 		de.jlo.talendcomp.google.sheet.GoogleSheetOutput gs = (GoogleSheetOutput) globalMap.get("tGoogleSheetOutput_1");
-		String spreadsheetId = "1unqwDlz1GrPpVUjET-JkUA0FaXkaqMGDX2UV6ll8at0";
-		gs.setSpreadsheetId(spreadsheetId);
-		gs.setSheetName("Sheet3");
+		gs.setDocumentTitle("Testsheet");
+		gs.createSheetDocument();
+		gs.setSheetName("Sheet1");
 		gs.setStartRowIndex(1);
 		int countInserts = 0;
-		for (int i = 1; i < 10; i++) {
+		for (int i = 1; i < 50; i++) {
+			gs.addValue("String_value_üöä_" + i, null);
+			Date dv = new Date();
+			gs.addValue(dv, null);
+			gs.addValue((i % 2) == 0 ? true : false, null);
+			gs.addValue(i, null);
+			gs.addValue(Long.valueOf(i), null);
+			gs.addValue(new BigDecimal(i + "." + i), null);
+			gs.addRow();
+			countInserts++;
+		}
+		gs.executeUpdate();
+		spreadsheetId = gs.getSpreadsheetId();
+		System.out.println("New spreadsheetId=" + spreadsheetId);
+		int countUpdated = gs.getCountWrittenRows();
+		assertEquals(countInserts, countUpdated);
+	}
+
+	@Test
+	public void testAppendRows() throws Exception {
+		de.jlo.talendcomp.google.sheet.GoogleSheetOutput gs = (GoogleSheetOutput) globalMap.get("tGoogleSheetOutput_1");
+		gs.setSpreadsheetId(spreadsheetId);
+		gs.setSheetName("Sheet1");
+		int countInserts = 0;
+		for (int i = 1; i <= 10; i++) {
 			gs.addValue("String_value_üöä_" + i, null);
 			Date dv = new Date();
 			gs.addValue(dv, null);
@@ -70,15 +95,39 @@ public class TestGoogleSheetOutput {
 	}
 
 	@Test
+	public void testUpdateRowsWithDeleteRows() throws Exception {
+		de.jlo.talendcomp.google.sheet.GoogleSheetOutput gs = (GoogleSheetOutput) globalMap.get("tGoogleSheetOutput_1");
+		gs.setSpreadsheetId(spreadsheetId);
+		gs.setSheetName("Sheet1");
+		gs.setStartRowIndex(10);
+		int countInserts = 0;
+		for (int i = 1; i < 11; i++) {
+			gs.addValue("String_value_üöä_" + i, null);
+			Date dv = new Date();
+			gs.addValue(dv, null);
+			gs.addValue((i % 2) == 0 ? true : false, null);
+			gs.addValue(i, null);
+			gs.addValue(Long.valueOf(i), null);
+			gs.addValue(new BigDecimal(i + "." + i), null);
+			gs.addRow();
+			countInserts++;
+		}
+		gs.executeUpdate();
+		System.out.println("lastRowIndex=" + gs.getLastRowIndex());
+		gs.executeDeleteRowsAfterLastWrittenRow();
+		System.out.println("after delete lastRowIndex=" + gs.getLastRowIndex());
+		int countUpdated = gs.getCountWrittenRows();
+		assertEquals(countInserts, countUpdated);
+	}
+
+	@Test
 	public void testUpdateRows() throws Exception {
 		de.jlo.talendcomp.google.sheet.GoogleSheetOutput gs = (GoogleSheetOutput) globalMap.get("tGoogleSheetOutput_1");
-		String spreadsheetId = "1unqwDlz1GrPpVUjET-JkUA0FaXkaqMGDX2UV6ll8at0";
 		gs.setSpreadsheetId(spreadsheetId);
-		gs.setSheetName("Sheet3");
-		gs.setStartRowIndex(30);
-		Date now = new Date();
+		gs.setSheetName("Sheet1");
+		gs.setStartRowIndex(1);
 		int countInserts = 0;
-		for (int i = 1; i < 50000; i++) {
+		for (int i = 1; i <= 1000; i++) {
 			gs.addValue("String_value_üöä_" + i, null);
 			Date dv = new Date();
 			gs.addValue(dv, null);
@@ -95,27 +144,18 @@ public class TestGoogleSheetOutput {
 	}
 
 	@Test
-	public void testUpdateRowsCreateNewSS() throws Exception {
+	public void testDeleteRows() throws Exception {
 		de.jlo.talendcomp.google.sheet.GoogleSheetOutput gs = (GoogleSheetOutput) globalMap.get("tGoogleSheetOutput_1");
-		gs.setDocumentTitle("Testsheet-2");
-		gs.createSheetDocument();
-		gs.setSheetName("Sheet3");
-		gs.setStartRowIndex(30);
-		int countInserts = 0;
-		for (int i = 1; i < 50000; i++) {
-			gs.addValue("String_value_üöä_" + i, null);
-			Date dv = new Date();
-			gs.addValue(dv, null);
-			gs.addValue((i % 2) == 0 ? true : false, null);
-			gs.addValue(i, null);
-			gs.addValue(Long.valueOf(i), null);
-			gs.addValue(new BigDecimal(i + "." + i), null);
-			gs.addRow();
-			countInserts++;
-		}
-		gs.executeUpdate();
-		int countUpdated = gs.getCountWrittenRows();
-		assertEquals(countInserts, countUpdated);
+		gs.setSpreadsheetId(spreadsheetId);
+		gs.setSheetName("Sheet1");
+		gs.executeDeleteRows(2, null);
 	}
 
+	@Test
+	public void testClearSheet() throws Exception {
+		de.jlo.talendcomp.google.sheet.GoogleSheetOutput gs = (GoogleSheetOutput) globalMap.get("tGoogleSheetOutput_1");
+		gs.setSpreadsheetId(spreadsheetId);
+		gs.setSheetName("Sheet1");
+		gs.clearSheet();
+	}
 }

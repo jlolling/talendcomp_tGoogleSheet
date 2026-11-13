@@ -1,0 +1,56 @@
+<%@ jet 
+	imports="
+		org.talend.core.model.process.INode 
+		org.talend.core.model.process.ElementParameterParser 
+		org.talend.designer.codegen.config.CodeGeneratorArgument
+		org.talend.core.model.process.IConnection
+		org.talend.core.model.process.IConnectionCategory
+		org.talend.core.model.utils.NodeUtil
+		java.util.List
+	" 
+%>
+
+<% 
+    CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+    INode node = (INode)codeGenArgument.getArgument();
+    String cid = node.getUniqueName();
+    String mainConnName = null;
+	boolean dieOnError = "true".equals(ElementParameterParser.getValue(node, "__DIE_ON_ERROR__"));
+	boolean deleteAfterLastWrittenRow = "true".equals(ElementParameterParser.getValue(node, "__DELETE_ROWS_AFTER_LAST_WRITTEN_ROW__"));
+	boolean appendRows = "true".equals(ElementParameterParser.getValue(node, "__APPEND_ROWS__"));
+	List< ? extends IConnection> conns = NodeUtil.getIncomingConnections(node, IConnectionCategory.DATA);
+    if (conns != null && conns.size() > 0) {
+    	IConnection conn = conns.get(0);
+       	mainConnName = conn.getName();
+    }
+    if (mainConnName != null) { %>
+	try {
+<%  if (appendRows) { %>
+		<%=cid%>.executeAppend();
+<%  } else { %>
+		<%=cid%>.executeUpdate();
+<%  } %>
+	} catch (Exception e) {
+		globalMap.put("<%=cid%>_ERROR_MESSAGE", "Execute write request failed: " + e.getMessage());
+<%		if (dieOnError) { %>
+			throw e;
+<%		} else { %>
+			e.printStackTrace();
+<%		} %>	
+	}
+<%  if (deleteAfterLastWrittenRow && appendRows == false) { %>
+	try {
+		<%=cid%>.executeDeleteRowsAfterLastWrittenRow();
+	} catch (Exception e) {
+		globalMap.put("<%=cid%>_ERROR_MESSAGE", "Delete rows after last written row request failed: " + e.getMessage());
+<%		if (dieOnError) { %>
+			throw e;
+<%		} else { %>
+			e.printStackTrace();
+<%		} %>	
+	}
+<%  } // if (deleteAfterLastWrittenRow) %>
+	globalMap.put("<%=cid%>_NB_LINE", nb_line_<%=cid%>);
+	globalMap.put("<%=cid%>_LAST_ROW_INDEX", <%=cid%>.getLastRowIndex());
+<%  } // if (mainConnName != null) %>
+	

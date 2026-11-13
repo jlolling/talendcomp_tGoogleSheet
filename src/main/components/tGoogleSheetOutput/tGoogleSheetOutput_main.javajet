@@ -1,0 +1,56 @@
+<%@ jet 
+	imports="
+		org.talend.designer.codegen.config.CodeGeneratorArgument
+		org.talend.core.model.process.INode 
+		org.talend.core.model.process.ElementParameterParser 
+		org.talend.core.model.metadata.IMetadataTable 
+		org.talend.core.model.metadata.IMetadataColumn 
+		org.talend.core.model.process.IConnection
+		org.talend.core.model.process.IConnectionCategory
+		org.talend.core.model.utils.NodeUtil
+		java.util.List
+		java.util.ArrayList
+	" 
+%>
+<% 
+    CodeGeneratorArgument codeGenArgument = (CodeGeneratorArgument) argument;
+    INode node = (INode)codeGenArgument.getArgument();
+    String cid = node.getUniqueName();
+    IConnection conn = null;
+    String mainConnector = null;
+	List< ? extends IConnection> conns = NodeUtil.getIncomingConnections(node, IConnectionCategory.DATA);
+    if (conns != null && conns.size() > 0) {
+    	conn = conns.get(0);
+   		mainConnector = conn.getConnectorName();
+    } // if (conns != null && conns.size() > 0)
+	List<IMetadataColumn> listColumns = new ArrayList<IMetadataColumn>();
+	IMetadataTable metadata = node.getMetadataFromConnector(mainConnector);
+	if (metadata != null) {
+   		listColumns = metadata.getListColumns();
+	} // if (metadata != null)
+	boolean dieOnError = "true".equals(ElementParameterParser.getValue(node, "__DIE_ON_ERROR__"));
+%>
+<%	if (conn != null) {
+        for (IMetadataColumn col : listColumns) { 
+        	String pattern = col.getPattern();
+        	if (pattern == null || pattern.trim().isEmpty()) { 
+        		pattern = "null";
+        	} %>
+    <%=cid%>.addValue(<%=conn.getName()%>.<%=col.getLabel()%>, <%=pattern%>);
+<%		} %>
+    // add record to request
+    try {
+		<%=cid%>.addRow();
+    	nb_line_<%=cid%>++;
+    } catch (Exception e) {
+		<%=cid%>.error("Add data row in line: " + nb_line_<%=cid%> + " failed: " + e.getMessage(), e);
+    	globalMap.put("<%=cid%>_ERROR_MESSAGE", "Add data row in line: " + nb_line_<%=cid%> + " failed: " + e.getMessage());
+<%		if (dieOnError) { %>
+			throw e;
+<%		} else { %>
+			e.printStackTrace();
+<%		} %>	
+    }
+<%  } else { %>
+	// no schema defined!
+<%  } %>

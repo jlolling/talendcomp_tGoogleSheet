@@ -26,7 +26,7 @@ import com.google.api.client.http.HttpResponseException;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.GenericJson;
 import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.Clock;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
@@ -42,7 +42,7 @@ public abstract class GoogleSheet {
 	private static Logger logger = LogManager.getLogger(GoogleSheet.class);
 	private static final Map<String, GoogleSheet> clientCache = new HashMap<String, GoogleSheet>();
 	private HttpTransport HTTP_TRANSPORT = null;
-	private final JsonFactory JSON_FACTORY = new JacksonFactory();
+	private final JsonFactory JSON_FACTORY = new GsonFactory();
 	private File keyFile; // *.p12 key file is needed
 	private String clientSecretFile = null;
 	private String accountEmail;
@@ -154,16 +154,22 @@ public abstract class GoogleSheet {
 		// Checks that the defaults have been replaced (Default =
 		// "Enter X here").
 		if (clientSecrets.getInstalled() == null) {
-			throw new IllegalStateException("The credentials are not suitable for this component. Please take car you choose the authentication type for Desktop (formally known as Installed Applications. The authentication type for Web applications does not work here.");
+			throw new IllegalStateException("The credentials in the file: " + secretFile.getAbsolutePath() + " are not suitable for this component. Please take car you choose the authentication type for Desktop (formally known as Installed Applications). The authentication type for Web applications does not work here.");
 		}
-		if (clientSecrets.getDetails().getClientId().startsWith("Enter")
-				|| clientSecrets
-					.getDetails()
-					.getClientSecret()
-					.startsWith("Enter ")) {
+		String clientId = clientSecrets
+				.getDetails()
+				.getClientId();
+		if (clientId == null) {
+			throw new Exception("The secret file: " + secretFile.getAbsolutePath() + " does not contains a client_id");
+		}
+		String clientSecret = clientSecrets
+				.getDetails()
+				.getClientSecret();
+		if (clientId.startsWith("Enter")
+				|| (clientSecret != null && clientSecret.startsWith("Enter "))) {
 			throw new Exception("The client secret file does not contains the credentials. At first you have to pass the web based authorization process!");
 		}
-		credentialDataStoreDir= secretFile.getParent() + "/" + clientSecrets.getDetails().getClientId() + "/";
+		credentialDataStoreDir= secretFile.getParent() + "/" + clientId + "/";
 		File credentialDataStoreDirFile = new File(credentialDataStoreDir);             
 		if (credentialDataStoreDirFile.exists() == false && credentialDataStoreDirFile.mkdirs() == false) {
 			throw new Exception("Credentedial data dir does not exists or cannot created:" + credentialDataStoreDir);
@@ -226,7 +232,7 @@ public abstract class GoogleSheet {
 		if (logger != null) {
 			logger.info(message);
 		} else {
-			System.out.println("INFO: " + message);
+			System.out.println("INFO: " + message);	
 		}
 	}
 	
@@ -358,12 +364,12 @@ public abstract class GoogleSheet {
 					throw ge;
 				}
 				if (currentAttempt == (maxRetriesInCaseOfErrors - 1)) {
-					error("All retries of the request have been failed:" + ge.getMessage(), ge);
+					error("All " + maxRetriesInCaseOfErrors + " attempts of the request have been failed:" + ge.getMessage(), ge);
 					throw ge;
 				} else {
 					// wait
 					try {
-						debug("Retry request in " + waitTime + "ms");
+						warn("Retry (attempt: " + (currentAttempt + 1) + " of " + maxRetriesInCaseOfErrors + ") request in " + waitTime + "ms");
 						Thread.sleep(waitTime);
 					} catch (InterruptedException ie) {}
 					int random = (int) Math.random() * 500;

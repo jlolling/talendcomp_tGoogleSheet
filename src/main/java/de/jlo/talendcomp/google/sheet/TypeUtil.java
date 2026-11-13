@@ -40,6 +40,7 @@ public final class TypeUtil {
 		if (nf == null) {
 			Locale locale = new Locale(localeStr);
 			nf = (DecimalFormat) NumberFormat.getInstance(locale);
+			nf.setGroupingUsed(false);
 			numberformatMap.put(localeStr, nf);
 		}
 		return nf;
